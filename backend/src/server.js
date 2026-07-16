@@ -25,7 +25,14 @@ const PORT = process.env.PORT || 5000;
 app.set('io', io);
 
 // Global Middleware
-app.use(helmet());
+if (process.env.NODE_ENV !== 'development') {
+  app.use(helmet());
+} else {
+  app.use(helmet({
+    hsts: false,
+    contentSecurityPolicy: false
+  }));
+}
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

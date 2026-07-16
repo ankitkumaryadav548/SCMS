@@ -75,7 +75,7 @@ exports.updateSensor = async (req, res) => {
 
 // Calculate optimal route by invoking Java Algorithm Engine
 exports.calculateOptimalRoute = async (req, res) => {
-  const { startNode, endNode } = req.body;
+  const { startNode, endNode, customEdges } = req.body;
 
   if (!startNode || !endNode) {
     return res.status(400).json({
@@ -91,7 +91,7 @@ exports.calculateOptimalRoute = async (req, res) => {
     const response = await fetch(`${javaEngineUrl}/algorithms/shortest-path`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ startNode, endNode })
+      body: JSON.stringify({ startNode, endNode, customEdges })
     });
 
     if (!response.ok) {
@@ -100,11 +100,15 @@ exports.calculateOptimalRoute = async (req, res) => {
 
     const result = await response.json();
 
-    // Log this decision node
-    await db.query(
-      "INSERT INTO node_logs (module, action, details) VALUES ('Traffic', 'Route Optimization Call', ?)",
-      [JSON.stringify({ startNode, endNode, result })]
-    );
+    // Log this decision node (non-blocking if DB is offline)
+    try {
+      await db.query(
+        "INSERT INTO node_logs (module, action, details) VALUES ('Traffic', 'Route Optimization Call', ?)",
+        [JSON.stringify({ startNode, endNode, result })]
+      );
+    } catch (dbErr) {
+      console.warn('⚠️ Database audit logging failed:', dbErr.message);
+    }
 
     return res.status(200).json({
       success: true,

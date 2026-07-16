@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Traffic from './pages/Traffic';
 import Emergency from './pages/Emergency';
 import Utility from './pages/Utility';
+import Navigation from './pages/Navigation';
 
 // Components
 import Navbar from './components/Navbar';
@@ -96,6 +97,17 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <Utility />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/navigation"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Navigation />
               </MainLayout>
             </ProtectedRoute>
           }

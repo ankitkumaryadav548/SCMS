@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Car, AlertTriangle, Activity, Landmark } from 'lucide-react';
+import { LayoutDashboard, Car, AlertTriangle, Activity, Landmark, Route } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
 
   const links = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Navigation Module', path: '/navigation', icon: Route },
     { name: 'Traffic Optimization', path: '/traffic', icon: Car },
     { name: 'Emergency Alerts', path: '/emergency', icon: AlertTriangle },
     { name: 'Utility Grid', path: '/utility', icon: Activity },
