@@ -1,17 +1,25 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Car, AlertTriangle, Activity, Landmark, Route } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { LayoutDashboard, Car, AlertTriangle, Activity, Landmark, Route, CalendarCheck, UserCheck, Network } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
+  const { user } = useAuth();
+  const isAdmin = ['Admin', 'Operator'].includes(user?.role);
 
   const links = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Navigation Module', path: '/navigation', icon: Route },
-    { name: 'Traffic Optimization', path: '/traffic', icon: Car },
-    { name: 'Emergency Alerts', path: '/emergency', icon: AlertTriangle },
-    { name: 'Utility Grid', path: '/utility', icon: Activity },
+    { name: 'Dashboard',           path: '/dashboard', icon: LayoutDashboard, adminOnly: true },
+    { name: 'Navigation Module',   path: '/navigation', icon: Route },
+    { name: 'Booking Management',  path: '/booking',   icon: CalendarCheck },
+    { name: 'Citizen Records',     path: '/citizens',  icon: UserCheck, adminOnly: true },
+    { name: 'Departments',         path: '/departments',icon: Network, adminOnly: true },
+    { name: 'Traffic Optimization',path: '/traffic',   icon: Car },
+    { name: 'Emergency Alerts',    path: '/emergency', icon: AlertTriangle, adminOnly: true },
+    { name: 'Utility Grid',        path: '/utility',   icon: Activity },
   ];
+
+  const visibleLinks = links.filter(link => !link.adminOnly || isAdmin);
 
   return (
     <aside className="w-64 bg-darkbg-card border-r border-darkbg-border flex flex-col hidden md:flex">
@@ -24,7 +32,7 @@ const Sidebar = () => {
       </div>
       
       <nav className="flex-1 p-4 space-y-1">
-        {links.map((link) => {
+        {visibleLinks.map((link) => {
           const Icon = link.icon;
           const isActive = location.pathname === link.path;
           return (

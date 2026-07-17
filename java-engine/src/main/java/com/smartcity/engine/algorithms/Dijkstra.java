@@ -17,16 +17,18 @@ public class Dijkstra {
     public static class PathResult {
         public List<String> path;
         public double totalCost;
+        public int nodesVisited;
 
-        public PathResult(List<String> path, double totalCost) {
+        public PathResult(List<String> path, double totalCost, int nodesVisited) {
             this.path = path;
             this.totalCost = totalCost;
+            this.nodesVisited = nodesVisited;
         }
     }
 
     public static PathResult findShortestPath(Map<String, List<Edge>> graph, String start, String end) {
         if (!graph.containsKey(start)) {
-            return new PathResult(Collections.emptyList(), Double.MAX_VALUE);
+            return new PathResult(Collections.emptyList(), Double.MAX_VALUE, 0);
         }
 
         Map<String, Double> distances = new HashMap<>();
@@ -39,9 +41,12 @@ public class Dijkstra {
         distances.put(start, 0.0);
         pq.add(new NodeDistance(start, 0.0));
 
+        int nodesVisited = 0;
+
         while (!pq.isEmpty()) {
             NodeDistance current = pq.poll();
             String u = current.node;
+            nodesVisited++;
 
             if (u.equals(end)) {
                 break;
@@ -66,7 +71,7 @@ public class Dijkstra {
         }
 
         if (distances.get(end) == null || distances.get(end) == Double.MAX_VALUE) {
-            return new PathResult(Collections.emptyList(), Double.MAX_VALUE);
+            return new PathResult(Collections.emptyList(), Double.MAX_VALUE, nodesVisited);
         }
 
         List<String> path = new LinkedList<>();
@@ -76,7 +81,7 @@ public class Dijkstra {
             step = predecessors.get(step);
         }
 
-        return new PathResult(path, distances.get(end));
+        return new PathResult(path, distances.get(end), nodesVisited);
     }
 
     private static class NodeDistance {

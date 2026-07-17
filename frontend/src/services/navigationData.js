@@ -4,18 +4,18 @@
  * Intersections (Nodes) centered in Manhattan, NYC.
  */
 export const NAVIGATION_NODES = {
-  TimesSquare: { name: 'Times Square', lat: 40.7580, lng: -73.9855 },
-  CentralPark: { name: 'Central Park South', lat: 40.7644, lng: -73.9730 },
-  GrandCentral: { name: 'Grand Central Terminal', lat: 40.7527, lng: -73.9772 },
-  EmpireState: { name: 'Empire State Building', lat: 40.7484, lng: -73.9857 },
-  UnionSquare: { name: 'Union Square', lat: 40.7359, lng: -73.9911 },
-  WashSquare: { name: 'Washington Square Park', lat: 40.7308, lng: -73.9973 },
-  SoHo: { name: 'SoHo District', lat: 40.7233, lng: -74.0030 },
-  WallStreet: { name: 'Wall Street', lat: 40.7075, lng: -74.0113 },
-  Chinatown: { name: 'Chinatown', lat: 40.7158, lng: -73.9970 },
-  EastVillage: { name: 'East Village', lat: 40.7265, lng: -73.9815 },
-  ChelseaMarket: { name: 'Chelsea Market', lat: 40.7420, lng: -74.0048 },
-  HudsonYards: { name: 'Hudson Yards', lat: 40.7538, lng: -74.0022 }
+  TimesSquare: { name: 'Connaught Place', lat: 28.6304, lng: 77.2177 },
+  CentralPark: { name: 'India Gate', lat: 28.6129, lng: 77.2295 },
+  GrandCentral: { name: 'New Delhi Railway Station', lat: 28.6429, lng: 77.2217 },
+  EmpireState: { name: 'Rashtrapati Bhavan', lat: 28.6143, lng: 77.2002 },
+  UnionSquare: { name: 'Karol Bagh', lat: 28.6444, lng: 77.1903 },
+  WashSquare: { name: 'Rajendra Place', lat: 28.6425, lng: 77.1780 },
+  SoHo: { name: 'Patel Nagar', lat: 28.6450, lng: 77.1585 },
+  WallStreet: { name: 'Chandni Chowk', lat: 28.6506, lng: 77.2303 },
+  Chinatown: { name: 'Red Fort', lat: 28.6562, lng: 77.2410 },
+  EastVillage: { name: 'Raj Ghat', lat: 28.6406, lng: 77.2495 },
+  ChelseaMarket: { name: 'Lodhi Garden', lat: 28.5933, lng: 77.2189 },
+  HudsonYards: { name: 'Safdarjung Tomb', lat: 28.5893, lng: 77.2106 }
 };
 
 // Connections (Edges) between intersections

@@ -1,17 +1,22 @@
-const db = require('../config/db');
+const EmergencyIncident = require('../models/EmergencyIncident');
+const NodeLog = require('../models/NodeLog');
 
 // Get all incidents
 exports.getIncidents = async (req, res) => {
   try {
-    const [incidents] = await db.query(
-      `SELECT e.*, u.name as reporter_name 
-       FROM emergency_incidents e 
-       LEFT JOIN users u ON e.reported_by = u.id 
-       ORDER BY e.created_at DESC`
-    );
+    const incidents = await EmergencyIncident.find()
+      .populate('reported_by', 'name')
+      .sort({ created_at: -1 });
+
+    const formattedIncidents = incidents.map(e => {
+      const obj = e.toJSON();
+      obj.reporter_name = e.reported_by ? e.reported_by.name : null;
+      return obj;
+    });
+
     return res.status(200).json({
       success: true,
-      data: incidents
+      data: formattedIncidents
     });
   } catch (error) {
     console.error('getIncidents Error:', error);
@@ -36,15 +41,7 @@ exports.reportIncident = async (req, res) => {
   try {
     const userId = req.user ? req.user.id : null;
 
-    const [result] = await db.query(
-      `INSERT INTO emergency_incidents 
-       (title, description, type, severity, location_lat, location_lng, status, reported_by) 
-       VALUES (?, ?, ?, ?, ?, ?, 'Reported', ?)`,
-      [title, description, type, severity, location_lat, location_lng, userId]
-    );
-
-    const newIncident = {
-      id: result.insertId,
+    const newIncident = await EmergencyIncident.create({
       title,
       description,
       type,
@@ -52,19 +49,23 @@ exports.reportIncident = async (req, res) => {
       location_lat,
       location_lng,
       status: 'Reported',
-      reported_by: userId,
-      created_at: new Date()
-    };
+      reported_by: userId
+    });
+
+    // Populate reporter name for clients
+    const populated = await EmergencyIncident.findById(newIncident._id).populate('reported_by', 'name');
+    const responseData = populated.toJSON();
+    responseData.reporter_name = populated.reported_by ? populated.reported_by.name : null;
 
     // Emit real-time incident event
     if (req.app.get('io')) {
-      req.app.get('io').emit('new_incident', newIncident);
+      req.app.get('io').emit('new_incident', responseData);
     }
 
     return res.status(201).json({
       success: true,
       message: 'Emergency incident reported successfully.',
-      data: newIncident
+      data: responseData
     });
   } catch (error) {
     console.error('reportIncident Error:', error);
@@ -89,36 +90,38 @@ exports.updateIncidentStatus = async (req, res) => {
   }
 
   try {
-    const [result] = await db.query(
-      'UPDATE emergency_incidents SET status = ? WHERE id = ?',
-      [status, id]
-    );
+    const updated = await EmergencyIncident.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).populate('reported_by', 'name');
 
-    if (result.affectedRows === 0) {
+    if (!updated) {
       return res.status(404).json({
         success: false,
         message: 'Incident not found.'
       });
     }
 
-    // Retrieve full incident details to notify clients
-    const [updated] = await db.query('SELECT * FROM emergency_incidents WHERE id = ?', [id]);
+    const responseData = updated.toJSON();
+    responseData.reporter_name = updated.reported_by ? updated.reported_by.name : null;
 
     // Emit event
     if (req.app.get('io')) {
-      req.app.get('io').emit('incident_status_change', updated[0]);
+      req.app.get('io').emit('incident_status_change', responseData);
     }
 
     // Log the change
-    await db.query(
-      "INSERT INTO node_logs (module, action, details) VALUES ('Emergency', 'Incident Status Update', ?)",
-      [JSON.stringify({ incident_id: id, status })]
-    );
+    await NodeLog.create({
+      module: 'Emergency',
+      action: 'Incident Status Update',
+      details: { incident_id: id, status }
+    });
 
     return res.status(200).json({
       success: true,
       message: 'Incident status updated successfully.',
-      data: updated[0]
+      data: responseData
     });
   } catch (error) {
     console.error('updateIncidentStatus Error:', error);

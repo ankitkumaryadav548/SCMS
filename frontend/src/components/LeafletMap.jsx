@@ -20,7 +20,7 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const LeafletMap = ({ center = [40.73, -73.98], zoom = 12, markers = [] }) => {
+const LeafletMap = ({ center = [28.62, 77.22], zoom = 12, markers = [] }) => {
   return (
     <div className="h-[400px] w-full rounded-xl overflow-hidden border border-darkbg-border bg-darkbg-card shadow-lg relative">
       <MapContainer 

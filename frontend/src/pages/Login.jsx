@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Landmark, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Landmark, Mail, Lock, AlertCircle, ShieldCheck } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -88,12 +88,27 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="text-sm text-darkbg-textMuted mt-8">
+        <p className="text-sm text-darkbg-textMuted mt-6 text-center">
           Don't have an account?{' '}
           <Link to="/register" className="text-brand-500 hover:text-brand-400 font-semibold underline">
             Register here
           </Link>
         </p>
+
+        {/* Quick Admin Login Button */}
+        <div className="w-full mt-6 pt-6 border-t border-darkbg-border flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => { setEmail('admin@smartcity.gov'); setPassword('password123'); }}
+            className="w-full bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 text-brand-400 hover:text-brand-300 font-semibold py-2.5 rounded-xl text-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Sign In as Administrator (Quick Fill)
+          </button>
+          <span className="text-[10px] text-darkbg-textMuted text-center font-mono">
+            Demo credentials: admin@smartcity.gov / password123
+          </span>
+        </div>
       </div>
     </div>
   );

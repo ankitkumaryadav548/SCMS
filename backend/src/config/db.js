@@ -1,27 +1,21 @@
-const mysql = require('mysql2/promise');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'password123',
-  database: process.env.DB_NAME || 'smart_city',
-  port: process.env.DB_PORT || 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0
-});
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/smart_city');
+    console.log(`✅ Connected to MongoDB Database: ${conn.connection.host}`);
+    
+    // Automatically run seeding if needed
+    const seedMongo = require('./seedMongo');
+    await seedMongo();
+  } catch (err) {
+    console.error('❌ MongoDB connection failed:', err.message);
+    // Do not crash in development to allow other parts of the engine to work
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
+  }
+};
 
-// Simple connectivity check
-pool.getConnection()
-  .then(connection => {
-    console.log('✅ Connected to MySQL Database successfully.');
-    connection.release();
-  })
-  .catch(err => {
-    console.error('❌ Database connection failed:', err.message);
-  });
-
-module.exports = pool;
+module.exports = connectDB;

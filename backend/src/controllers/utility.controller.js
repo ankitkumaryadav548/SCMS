@@ -1,10 +1,11 @@
-const db = require('../config/db');
+const UtilityGrid = require('../models/UtilityGrid');
+const NodeLog = require('../models/NodeLog');
 require('dotenv').config();
 
 // Get all utility grids
 exports.getGrids = async (req, res) => {
   try {
-    const [grids] = await db.query('SELECT * FROM utility_grids');
+    const grids = await UtilityGrid.find();
     return res.status(200).json({
       success: true,
       data: grids
@@ -46,10 +47,11 @@ exports.optimizeDistribution = async (req, res) => {
     const result = await response.json();
 
     // Log the event
-    await db.query(
-      "INSERT INTO node_logs (module, action, details) VALUES ('Utility', 'MST Spanning Layout', ?)",
-      [JSON.stringify({ input_nodes: nodeIds, mst_output: result })]
-    );
+    await NodeLog.create({
+      module: 'Utility',
+      action: 'MST Spanning Layout',
+      details: { input_nodes: nodeIds, mst_output: result }
+    });
 
     return res.status(200).json({
       success: true,

@@ -1,10 +1,12 @@
-const db = require('../config/db');
+const TrafficSensor = require('../models/TrafficSensor');
+const TrafficLog = require('../models/TrafficLog');
+const NodeLog = require('../models/NodeLog');
 require('dotenv').config();
 
 // Get all traffic sensors
 exports.getSensors = async (req, res) => {
   try {
-    const [sensors] = await db.query('SELECT * FROM traffic_sensors');
+    const sensors = await TrafficSensor.find();
     return res.status(200).json({
       success: true,
       count: sensors.length,
@@ -32,12 +34,13 @@ exports.updateSensor = async (req, res) => {
   }
 
   try {
-    const [result] = await db.query(
-      'UPDATE traffic_sensors SET current_density = ?, avg_speed = ? WHERE id = ?',
-      [current_density, avg_speed, id]
+    const sensor = await TrafficSensor.findByIdAndUpdate(
+      id,
+      { current_density, avg_speed },
+      { new: true }
     );
 
-    if (result.affectedRows === 0) {
+    if (!sensor) {
       return res.status(404).json({
         success: false,
         message: 'Sensor not found.'
@@ -45,10 +48,11 @@ exports.updateSensor = async (req, res) => {
     }
 
     // Log to traffic_logs history
-    await db.query(
-      'INSERT INTO traffic_logs (sensor_id, density, avg_speed) VALUES (?, ?, ?)',
-      [id, current_density, avg_speed]
-    );
+    await TrafficLog.create({
+      sensor_id: id,
+      density: current_density,
+      avg_speed
+    });
 
     // Emit socket event for realtime update if io is attached to req
     if (req.app.get('io')) {
@@ -62,7 +66,8 @@ exports.updateSensor = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Sensor updated successfully.'
+      message: 'Sensor updated successfully.',
+      data: sensor
     });
   } catch (error) {
     console.error('updateSensor Error:', error);
@@ -102,10 +107,11 @@ exports.calculateOptimalRoute = async (req, res) => {
 
     // Log this decision node (non-blocking if DB is offline)
     try {
-      await db.query(
-        "INSERT INTO node_logs (module, action, details) VALUES ('Traffic', 'Route Optimization Call', ?)",
-        [JSON.stringify({ startNode, endNode, result })]
-      );
+      await NodeLog.create({
+        module: 'Traffic',
+        action: 'Route Optimization Call',
+        details: { startNode, endNode, result }
+      });
     } catch (dbErr) {
       console.warn('⚠️ Database audit logging failed:', dbErr.message);
     }

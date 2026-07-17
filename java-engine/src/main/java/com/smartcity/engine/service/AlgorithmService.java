@@ -46,8 +46,6 @@ public class AlgorithmService {
     }
 
     public PathResponse getShortestPath(PathRequest request) {
-        long startTime = System.nanoTime();
-
         Map<String, List<Dijkstra.Edge>> graph = defaultTrafficGraph;
 
         // If custom edges are provided, build the graph from request
@@ -58,15 +56,54 @@ public class AlgorithmService {
             }
         }
 
-        Dijkstra.PathResult result = Dijkstra.findShortestPath(graph, request.getStartNode(), request.getEndNode());
+        // 1. Run Dijkstra benchmark
+        long startDijkstra = System.nanoTime();
+        Dijkstra.PathResult dijkstraResult = Dijkstra.findShortestPath(graph, request.getStartNode(), request.getEndNode());
+        long endDijkstra = System.nanoTime();
+        double dijkstraTimeMs = (endDijkstra - startDijkstra) / 1_000_000.0;
+        String dijkstraTime = String.format("%.4f ms", dijkstraTimeMs);
 
-        long endTime = System.nanoTime();
-        String execTime = String.format("%.3f ms", (endTime - startTime) / 1_000_000.0);
+        // 2. Build A* Graph and Run A* benchmark
+        Map<String, List<com.smartcity.engine.algorithms.AStar.Edge>> astarGraph = new HashMap<>();
+        for (Map.Entry<String, List<Dijkstra.Edge>> entry : graph.entrySet()) {
+            List<com.smartcity.engine.algorithms.AStar.Edge> astarEdges = new ArrayList<>();
+            for (Dijkstra.Edge edge : entry.getValue()) {
+                astarEdges.add(new com.smartcity.engine.algorithms.AStar.Edge(edge.target, edge.weight));
+            }
+            astarGraph.put(entry.getKey(), astarEdges);
+        }
+
+        long startAStar = System.nanoTime();
+        com.smartcity.engine.algorithms.AStar.PathResult astarResult = 
+            com.smartcity.engine.algorithms.AStar.findShortestPath(astarGraph, request.getStartNode(), request.getEndNode());
+        long endAStar = System.nanoTime();
+        double astarTimeMs = (endAStar - startAStar) / 1_000_000.0;
+        String astarTime = String.format("%.4f ms", astarTimeMs);
+
+        // 3. Construct comparison mapping
+        Map<String, Object> comparison = new HashMap<>();
+        
+        Map<String, Object> dStats = new HashMap<>();
+        dStats.put("path", dijkstraResult.path);
+        dStats.put("cost", dijkstraResult.totalCost == Double.MAX_VALUE ? -1.0 : dijkstraResult.totalCost);
+        dStats.put("time", dijkstraTime);
+        dStats.put("nodesVisited", dijkstraResult.nodesVisited);
+        
+        Map<String, Object> aStats = new HashMap<>();
+        aStats.put("path", astarResult.path);
+        aStats.put("cost", astarResult.totalCost == Double.MAX_VALUE ? -1.0 : astarResult.totalCost);
+        aStats.put("time", astarTime);
+        aStats.put("nodesVisited", astarResult.nodesVisited);
+
+        comparison.put("dijkstra", dStats);
+        comparison.put("astar", aStats);
 
         return new PathResponse(
-                result.path,
-                result.totalCost == Double.MAX_VALUE ? -1.0 : result.totalCost,
-                execTime
+                dijkstraResult.path,
+                dijkstraResult.totalCost == Double.MAX_VALUE ? -1.0 : dijkstraResult.totalCost,
+                dijkstraTime,
+                dijkstraResult.nodesVisited,
+                comparison
         );
     }
 

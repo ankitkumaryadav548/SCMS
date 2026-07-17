@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import API from '../services/api';
+import SEO from '../components/SEO';
 import { Network, Zap, CheckCircle, HelpCircle } from 'lucide-react';
 
 const Utility = () => {
@@ -41,6 +42,7 @@ const Utility = () => {
 
   return (
     <div className="space-y-8">
+      <SEO title="Utility Grid Optimizer" description="Smart City Kruskal Minimum Spanning Tree utility grid route optimizer." />
       <div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Kruskal utility MST Optimizer</h1>
         <p className="text-darkbg-textMuted text-sm mt-1">

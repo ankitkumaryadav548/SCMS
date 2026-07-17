@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const db = require('../config/db');
+const User = require('../models/User');
 require('dotenv').config();
 
 const signToken = (id, email, role) => {
@@ -24,8 +24,8 @@ exports.register = async (req, res) => {
 
   try {
     // Check if user already exists
-    const [existing] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (existing.length > 0) {
+    const existing = await User.findOne({ email });
+    if (existing) {
       return res.status(400).json({
         success: false,
         message: 'Email already registered.'
@@ -40,19 +40,20 @@ exports.register = async (req, res) => {
     const assignedRole = ['Citizen', 'Visitor', 'Operator', 'Admin'].includes(role) ? role : 'Citizen';
 
     // Insert user
-    const [result] = await db.query(
-      'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-      [name, email, hashedPassword, assignedRole]
-    );
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: assignedRole
+    });
 
-    const userId = result.insertId;
-    const token = signToken(userId, email, assignedRole);
+    const token = signToken(newUser._id, email, assignedRole);
 
     return res.status(201).json({
       success: true,
       message: 'User registered successfully.',
       token,
-      user: { id: userId, name, email, role: assignedRole }
+      user: { id: newUser._id, name, email, role: assignedRole }
     });
   } catch (error) {
     console.error('Registration Error:', error);
@@ -74,15 +75,14 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (users.length === 0) {
+    const user = await User.findOne({ email });
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials.'
       });
     }
 
-    const user = users[0];
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -91,14 +91,14 @@ exports.login = async (req, res) => {
       });
     }
 
-    const token = signToken(user.id, user.email, user.role);
+    const token = signToken(user._id, user.email, user.role);
 
     return res.status(200).json({
       success: true,
       message: 'Logged in successfully.',
       token,
       user: {
-        id: user.id,
+        id: user._id,
         name: user.name,
         email: user.email,
         role: user.role
@@ -115,11 +115,8 @@ exports.login = async (req, res) => {
 
 exports.getMe = async (req, res) => {
   try {
-    const [users] = await db.query(
-      'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
-      [req.user.id]
-    );
-    if (users.length === 0) {
+    const user = await User.findById(req.user.id).select('name email role created_at');
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User not found.'
@@ -127,7 +124,7 @@ exports.getMe = async (req, res) => {
     }
     return res.status(200).json({
       success: true,
-      data: users[0]
+      data: user
     });
   } catch (error) {
     return res.status(500).json({
@@ -149,15 +146,13 @@ exports.forgotPassword = async (req, res) => {
   }
 
   try {
-    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (users.length === 0) {
+    const user = await User.findOne({ email });
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: 'No user registered with this email address.'
       });
     }
-
-    const user = users[0];
 
     // Generate crypto token
     const rawResetToken = crypto.randomBytes(32).toString('hex');
@@ -171,10 +166,9 @@ exports.forgotPassword = async (req, res) => {
     // Set expiration to 1 hour from now
     const expires = new Date(Date.now() + 3600000); // 1 hour
 
-    await db.query(
-      'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
-      [hashedResetToken, expires, user.id]
-    );
+    user.reset_token = hashedResetToken;
+    user.reset_token_expires = expires;
+    await user.save();
 
     // Return raw token in response so the frontend user can proceed without a mail server setup
     return res.status(200).json({
@@ -212,29 +206,27 @@ exports.resetPassword = async (req, res) => {
       .digest('hex');
 
     // Query active tokens
-    const [users] = await db.query(
-      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > NOW()',
-      [hashedResetToken]
-    );
+    const user = await User.findOne({
+      reset_token: hashedResetToken,
+      reset_token_expires: { $gt: new Date() }
+    });
 
-    if (users.length === 0) {
+    if (!user) {
       return res.status(400).json({
         success: false,
         message: 'Invalid or expired password reset token.'
       });
     }
 
-    const user = users[0];
-
     // Hash new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Update password and clear tokens
-    await db.query(
-      'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
-      [hashedPassword, user.id]
-    );
+    user.password = hashedPassword;
+    user.reset_token = null;
+    user.reset_token_expires = null;
+    await user.save();
 
     return res.status(200).json({
       success: true,

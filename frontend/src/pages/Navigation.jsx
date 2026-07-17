@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import API from '../services/api';
+import SEO from '../components/SEO';
 import { 
   NAVIGATION_NODES, 
   NAVIGATION_EDGES, 
   buildCustomEdges, 
   calculatePathStats, 
-  findNearestNode 
+  findNearestNode,
+  calculateEdgeSpeed,
+  calculateEdgeTime
 } from '../services/navigationData';
 import { 
   Play, 
@@ -71,6 +74,13 @@ const NavigationPage = () => {
   // State variables
   const [startNode, setStartNode] = useState('TimesSquare');
   const [endNode, setEndNode] = useState('WallStreet');
+  const [startInputText, setStartInputText] = useState(NAVIGATION_NODES.TimesSquare.name);
+  const [endInputText, setEndInputText] = useState(NAVIGATION_NODES.WallStreet.name);
+  const [customStartCoords, setCustomStartCoords] = useState(null);
+  const [customEndCoords, setCustomEndCoords] = useState(null);
+  const [startSuggestions, setStartSuggestions] = useState([]);
+  const [endSuggestions, setEndSuggestions] = useState([]);
+
   const [routeMode, setRouteMode] = useState('fastest'); // shortest vs fastest
   const [trafficMultiplier, setTrafficMultiplier] = useState(1.0); // slider
   const [showTrafficLayer, setShowTrafficLayer] = useState(true);
@@ -83,14 +93,167 @@ const NavigationPage = () => {
   // Result routes
   const [primaryRoute, setPrimaryRoute] = useState(null); // { path: [], stats: {}, execTime }
   const [alternativeRoute, setAlternativeRoute] = useState(null); // { path: [], stats: {}, execTime }
+  const [comparisonData, setComparisonData] = useState(null);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentLocLoading, setCurrentLocLoading] = useState(false);
   const [infoMessage, setInfoMessage] = useState('');
 
-  const [mapCenter, setMapCenter] = useState([40.74, -73.99]);
+  const [mapCenter, setMapCenter] = useState([28.63, 77.22]);
   const [mapBounds, setMapBounds] = useState(null);
+
+  // Sync inputs with state modifications (e.g. from map pin select or current location)
+  useEffect(() => {
+    if (NAVIGATION_NODES[startNode]) {
+      setStartInputText(NAVIGATION_NODES[startNode].name);
+    }
+  }, [startNode]);
+
+  useEffect(() => {
+    if (NAVIGATION_NODES[endNode]) {
+      setEndInputText(NAVIGATION_NODES[endNode].name);
+    }
+  }, [endNode]);
+
+  // Resolve location input text to graph node keys
+  const resolveNodeKey = async (inputText) => {
+    if (!inputText) return null;
+    
+    // 1. Check if it matches a predefined landmark name exactly
+    const matchedNode = Object.entries(NAVIGATION_NODES).find(
+      ([key, val]) => val.name.toLowerCase() === inputText.trim().toLowerCase()
+    );
+    if (matchedNode) return { key: matchedNode[0], customCoords: null };
+    
+    // 2. Check if we already have the geocoded coordinates in our dynamic suggestions list
+    const matchedStartSuggestion = startSuggestions.find(
+      s => s.name.toLowerCase() === inputText.trim().toLowerCase()
+    );
+    if (matchedStartSuggestion) {
+      const snappedNode = findNearestNode(matchedStartSuggestion.lat, matchedStartSuggestion.lng);
+      if (snappedNode) {
+        return {
+          key: snappedNode,
+          customCoords: { lat: matchedStartSuggestion.lat, lng: matchedStartSuggestion.lng, name: matchedStartSuggestion.name }
+        };
+      }
+    }
+    
+    const matchedEndSuggestion = endSuggestions.find(
+      s => s.name.toLowerCase() === inputText.trim().toLowerCase()
+    );
+    if (matchedEndSuggestion) {
+      const snappedNode = findNearestNode(matchedEndSuggestion.lat, matchedEndSuggestion.lng);
+      if (snappedNode) {
+        return {
+          key: snappedNode,
+          customCoords: { lat: matchedEndSuggestion.lat, lng: matchedEndSuggestion.lng, name: matchedEndSuggestion.name }
+        };
+      }
+    }
+    
+    // 3. Perform geocoding via OpenStreetMap Nominatim
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(inputText)}&format=json&limit=1`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const { lat, lon, display_name } = data[0];
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lon);
+        
+        // Find nearest graph node to snap
+        const snappedNode = findNearestNode(latitude, longitude);
+        
+        if (snappedNode) {
+          return {
+            key: snappedNode,
+            customCoords: { lat: latitude, lng: longitude, name: display_name }
+          };
+        }
+      }
+    } catch (err) {
+      console.warn("Geocoding failed, falling back to substring match:", err);
+    }
+    
+    // 4. Fallback: search for substring match in predefined nodes
+    const fallbackNode = Object.entries(NAVIGATION_NODES).find(
+      ([key, val]) => val.name.toLowerCase().includes(inputText.trim().toLowerCase())
+    );
+    if (fallbackNode) {
+      return { key: fallbackNode[0], customCoords: null };
+    }
+    
+    return null;
+  };
+
+  // Dynamic autocomplete suggestions for Start Input (debounced)
+  useEffect(() => {
+    if (!startInputText || startInputText.length < 3) {
+      setStartSuggestions([]);
+      return;
+    }
+
+    const isPredefined = Object.values(NAVIGATION_NODES).some(
+      node => node.name.toLowerCase() === startInputText.trim().toLowerCase()
+    );
+    if (isPredefined) return;
+
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(startInputText)}&format=json&limit=5&countrycodes=in`
+        );
+        const data = await response.json();
+        if (data) {
+          const suggestions = data.map(item => ({
+            name: item.display_name,
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon)
+          }));
+          setStartSuggestions(suggestions);
+        }
+      } catch (err) {
+        console.warn("Datalist fetching failed:", err);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [startInputText]);
+
+  // Dynamic autocomplete suggestions for End Input (debounced)
+  useEffect(() => {
+    if (!endInputText || endInputText.length < 3) {
+      setEndSuggestions([]);
+      return;
+    }
+
+    const isPredefined = Object.values(NAVIGATION_NODES).some(
+      node => node.name.toLowerCase() === endInputText.trim().toLowerCase()
+    );
+    if (isPredefined) return;
+
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endInputText)}&format=json&limit=5&countrycodes=in`
+        );
+        const data = await response.json();
+        if (data) {
+          const suggestions = data.map(item => ({
+            name: item.display_name,
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon)
+          }));
+          setEndSuggestions(suggestions);
+        }
+      } catch (err) {
+        console.warn("Datalist fetching failed:", err);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [endInputText]);
 
   // Fetch search matches
   useEffect(() => {
@@ -107,10 +270,6 @@ const NavigationPage = () => {
 
   // Main Route calculation
   const calculateRoute = async () => {
-    if (startNode === endNode) {
-      setError('Origin and destination cannot be the same intersection.');
-      return;
-    }
     setLoading(true);
     setError('');
     setInfoMessage('');
@@ -118,13 +277,38 @@ const NavigationPage = () => {
     setAlternativeRoute(null);
 
     try {
-      // 1. Build custom edges representation for Java engine
+      // 1. Resolve geocoded addresses
+      const resolvedStart = await resolveNodeKey(startInputText);
+      const resolvedEnd = await resolveNodeKey(endInputText);
+
+      if (!resolvedStart || !resolvedEnd) {
+        throw new Error('Could not find or resolve start or end location coordinates.');
+      }
+
+      if (resolvedStart.key === resolvedEnd.key) {
+        throw new Error('Origin and destination resolved to the same intersection node.');
+      }
+
+      // Update state for visual output and markers
+      setStartNode(resolvedStart.key);
+      setEndNode(resolvedEnd.key);
+      setCustomStartCoords(resolvedStart.customCoords);
+      setCustomEndCoords(resolvedEnd.customCoords);
+
+      const activeStartNode = resolvedStart.key;
+      const activeEndNode = resolvedEnd.key;
+
+      if (resolvedStart.customCoords) {
+        setMapCenter([resolvedStart.customCoords.lat, resolvedStart.customCoords.lng]);
+      }
+
+      // 2. Build custom edges representation for Java engine
       const customEdges = buildCustomEdges(routeMode, trafficMultiplier);
 
-      // 2. Call Java Engine via Node.js proxy API
+      // 3. Call Java Engine via Node.js proxy API
       const primaryResponse = await API.post('/traffic/optimize-route', {
-        startNode,
-        endNode,
+        startNode: activeStartNode,
+        endNode: activeEndNode,
         customEdges
       });
 
@@ -144,8 +328,11 @@ const NavigationPage = () => {
         execTime: pData.executionTime
       };
       setPrimaryRoute(computedPrimary);
+      if (pData.comparison) {
+        setComparisonData(pData.comparison);
+      }
 
-      // 3. Optional: Calculate alternative route (K-Shortest alternative using edge penalty)
+      // 4. Optional: Calculate alternative route (K-Shortest alternative using edge penalty)
       if (showAlternativeRoute) {
         // Find edges on the primary path and penalize them by multiplying weight by 2.5
         const mainPathSet = new Set();
@@ -164,8 +351,8 @@ const NavigationPage = () => {
 
         // Call routing endpoint again for alternative route using penalized edges
         const altResponse = await API.post('/traffic/optimize-route', {
-          startNode,
-          endNode,
+          startNode: activeStartNode,
+          endNode: activeEndNode,
           customEdges: penalizedEdges
         });
 
@@ -183,8 +370,14 @@ const NavigationPage = () => {
         }
       }
 
-      // 4. Update map boundary to focus on path
+      // 5. Update map boundary to focus on path
       const coords = pData.path.map(n => [NAVIGATION_NODES[n].lat, NAVIGATION_NODES[n].lng]);
+      if (resolvedStart.customCoords) {
+        coords.push([resolvedStart.customCoords.lat, resolvedStart.customCoords.lng]);
+      }
+      if (resolvedEnd.customCoords) {
+        coords.push([resolvedEnd.customCoords.lat, resolvedEnd.customCoords.lng]);
+      }
       setMapBounds(coords);
       
     } catch (err) {
@@ -225,14 +418,14 @@ const NavigationPage = () => {
         setCurrentLocLoading(false);
       },
       (err) => {
-        console.warn('Geolocation failed, mocking Manhattan center coordinates...');
-        // Mock fallback to Chelsea Market
-        const mockLat = 40.7420;
-        const mockLng = -74.0048;
+        console.warn('Geolocation failed, mocking Delhi center coordinates...');
+        // Mock fallback to Connaught Place
+        const mockLat = 28.6304;
+        const mockLng = 77.2177;
         const snappedNode = findNearestNode(mockLat, mockLng);
         setStartNode(snappedNode);
         setMapCenter([mockLat, mockLng]);
-        setInfoMessage('Using simulated current location in Manhattan (Chelsea).');
+        setInfoMessage('Using simulated current location in New Delhi (Connaught Place).');
         setCurrentLocLoading(false);
       },
       { enableHighAccuracy: true, timeout: 5000 }
@@ -249,11 +442,20 @@ const NavigationPage = () => {
   const handleReset = () => {
     setPrimaryRoute(null);
     setAlternativeRoute(null);
+    setComparisonData(null);
     setError('');
     setInfoMessage('');
     setSearchQuery('');
     setSelectedSearchNode(null);
     setMapBounds(null);
+    setStartNode('TimesSquare');
+    setEndNode('WallStreet');
+    setStartInputText(NAVIGATION_NODES.TimesSquare.name);
+    setEndInputText(NAVIGATION_NODES.WallStreet.name);
+    setCustomStartCoords(null);
+    setCustomEndCoords(null);
+    setStartSuggestions([]);
+    setEndSuggestions([]);
   };
 
   // Dynamic colors for traffic congestion on map
@@ -299,6 +501,7 @@ const NavigationPage = () => {
 
   return (
     <div className="space-y-6">
+      <SEO title="Route Planner" description="Smart City pathfinder and Dijkstra routing map tool." />
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -384,15 +587,22 @@ const NavigationPage = () => {
                   <label className="block text-xs font-semibold uppercase tracking-wider text-darkbg-textMuted mb-1.5">
                     Start Location
                   </label>
-                  <select
-                    value={startNode}
-                    onChange={(e) => setStartNode(e.target.value)}
-                    className="w-full bg-darkbg-pure border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
-                  >
+                  <input
+                    type="text"
+                    list="start-suggestions"
+                    value={startInputText}
+                    onChange={(e) => setStartInputText(e.target.value)}
+                    placeholder="Enter start landmark or custom city..."
+                    className="w-full bg-black border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
+                  />
+                  <datalist id="start-suggestions">
                     {Object.entries(NAVIGATION_NODES).map(([key, val]) => (
-                      <option key={key} value={key}>{val.name}</option>
+                      <option key={key} value={val.name} />
                     ))}
-                  </select>
+                    {startSuggestions.map((item, idx) => (
+                      <option key={`start-suggestion-${idx}`} value={item.name} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* Destination selection */}
@@ -400,15 +610,22 @@ const NavigationPage = () => {
                   <label className="block text-xs font-semibold uppercase tracking-wider text-darkbg-textMuted mb-1.5">
                     End Location
                   </label>
-                  <select
-                    value={endNode}
-                    onChange={(e) => setEndNode(e.target.value)}
-                    className="w-full bg-darkbg-pure border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
-                  >
+                  <input
+                    type="text"
+                    list="end-suggestions"
+                    value={endInputText}
+                    onChange={(e) => setEndInputText(e.target.value)}
+                    placeholder="Enter destination or custom city..."
+                    className="w-full bg-black border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
+                  />
+                  <datalist id="end-suggestions">
                     {Object.entries(NAVIGATION_NODES).map(([key, val]) => (
-                      <option key={key} value={key}>{val.name}</option>
+                      <option key={key} value={val.name} />
                     ))}
-                  </select>
+                    {endSuggestions.map((item, idx) => (
+                      <option key={`end-suggestion-${idx}`} value={item.name} />
+                    ))}
+                  </datalist>
                 </div>
 
               </div>
@@ -626,6 +843,70 @@ const NavigationPage = () => {
 
               </div>
 
+              {comparisonData && (
+                <div className="border-t border-darkbg-border pt-4">
+                  <span className="block text-xs font-semibold uppercase tracking-wider text-darkbg-textMuted mb-3">
+                    Algorithmic Performance Comparison (Spring Boot Engine Telemetry)
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Dijkstra Card */}
+                    <div className="bg-darkbg-pure border border-darkbg-border rounded-xl p-4 space-y-2 relative overflow-hidden">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white">Dijkstra's Algorithm</span>
+                        <span className="text-[10px] bg-slate-800 text-darkbg-textMuted font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Uniform Search</span>
+                      </div>
+                      
+                      <div className="space-y-1 text-xs pt-1">
+                        <div className="flex justify-between">
+                          <span className="text-darkbg-textMuted">Execution Time:</span>
+                          <span className="font-bold text-amber-400 font-mono">{comparisonData.dijkstra.time}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-darkbg-textMuted">Nodes Visited:</span>
+                          <span className="font-bold text-white font-mono">{comparisonData.dijkstra.nodesVisited} nodes</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-darkbg-textMuted">Time Complexity:</span>
+                          <span className="font-bold text-slate-300 font-mono">O((V + E) log V)</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-2 text-[10px] text-darkbg-textMuted border-t border-darkbg-border/40 pt-2 leading-normal">
+                        Dijkstra explores equal distance layers in all directions without target guidance.
+                      </div>
+                    </div>
+
+                    {/* A* Card */}
+                    <div className="bg-darkbg-pure border border-brand-500/30 rounded-xl p-4 space-y-2 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-brand-500/5 rounded-full blur-xl pointer-events-none" />
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-brand-400">A* Search (Heuristic)</span>
+                        <span className="text-[10px] bg-brand-500/10 text-brand-400 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Heuristic Guided</span>
+                      </div>
+                      
+                      <div className="space-y-1 text-xs pt-1">
+                        <div className="flex justify-between">
+                          <span className="text-darkbg-textMuted">Execution Time:</span>
+                          <span className="font-bold text-emerald-400 font-mono">{comparisonData.astar.time}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-darkbg-textMuted">Nodes Visited:</span>
+                          <span className="font-bold text-brand-400 font-mono">{comparisonData.astar.nodesVisited} nodes</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-darkbg-textMuted">Time Complexity:</span>
+                          <span className="font-bold text-slate-300 font-mono">O((V + E) log V) worst</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-2 text-[10px] text-darkbg-textMuted border-t border-darkbg-border/40 pt-2 leading-normal">
+                        A* uses Euclidean distance to guide routing path directly towards target node.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Turn-by-Turn Directions list */}
               <div className="pt-2">
                 <span className="block text-xs font-semibold uppercase tracking-wider text-darkbg-textMuted mb-2">
@@ -767,6 +1048,60 @@ const NavigationPage = () => {
                 />
               )}
 
+              {/* Custom geocoded start pin */}
+              {customStartCoords && (
+                <>
+                  <Marker 
+                    position={[customStartCoords.lat, customStartCoords.lng]}
+                    icon={createMarkerIcon('indigo', 'C')}
+                  >
+                    <Popup>
+                      <div className="text-slate-800 text-xs font-semibold">
+                        <strong>CUSTOM START ADDRESS</strong>
+                        <p>{customStartCoords.name}</p>
+                        <p className="text-[10px] text-slate-500">Snapped to: {NAVIGATION_NODES[startNode].name}</p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                  <Polyline 
+                    positions={[
+                      [customStartCoords.lat, customStartCoords.lng],
+                      [NAVIGATION_NODES[startNode].lat, NAVIGATION_NODES[startNode].lng]
+                    ]}
+                    color="#6366f1"
+                    weight={2.5}
+                    dashArray="6, 6"
+                  />
+                </>
+              )}
+
+              {/* Custom geocoded end pin */}
+              {customEndCoords && (
+                <>
+                  <Marker 
+                    position={[customEndCoords.lat, customEndCoords.lng]}
+                    icon={createMarkerIcon('rose', 'D')}
+                  >
+                    <Popup>
+                      <div className="text-slate-800 text-xs font-semibold">
+                        <strong>CUSTOM END ADDRESS</strong>
+                        <p>{customEndCoords.name}</p>
+                        <p className="text-[10px] text-slate-500">Snapped to: {NAVIGATION_NODES[endNode].name}</p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                  <Polyline 
+                    positions={[
+                      [customEndCoords.lat, customEndCoords.lng],
+                      [NAVIGATION_NODES[endNode].lat, NAVIGATION_NODES[endNode].lng]
+                    ]}
+                    color="#f43f5e"
+                    weight={2.5}
+                    dashArray="6, 6"
+                  />
+                </>
+              )}
+
               {/* Render intersection node pins */}
               {Object.entries(NAVIGATION_NODES).map(([key, val]) => {
                 // Determine if this intersection is a start, end, or secondary highlight
@@ -844,10 +1179,10 @@ const NavigationPage = () => {
           </p>
           <ul className="list-disc pl-5 space-y-1 mt-1 font-medium">
             <li>The frontend builds a dynamic weighted edge schema of Manhattan intersections.</li>
-            <li>In <span className="text-white font-semibold">Fastest Mode</span>, weights represent Travel Time in minutes ($Time = \frac{Distance}{Speed} \times 60$), dynamically scaled by your congestion slider.</li>
+            <li>In <span className="text-white font-semibold">Fastest Mode</span>, weights represent Travel Time in minutes (Time = (Distance / Speed) * 60), dynamically scaled by your congestion slider.</li>
             <li>This structured representation is posted via Axios to the Node.js API, which authenticates the call and relays the graph to the <span className="text-white font-semibold">Java Spring Boot Dijkstra API</span>.</li>
             <li>The Java engine loads the custom edges, computes the single-source shortest path using a binary heap priority queue Dijkstra implementation, and responds within milliseconds.</li>
-            <li>The alternative path is resolved by adding a penalty weight ($W \times 2.5$) to the primary path edges and querying the Java engine again to force a bypass routing path.</li>
+            <li>The alternative path is resolved by adding a penalty weight (W * 2.5) to the primary path edges and querying the Java engine again to force a bypass routing path.</li>
           </ul>
         </div>
       </div>

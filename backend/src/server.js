@@ -5,6 +5,11 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
+const connectDB = require('./config/db');
+const TrafficSimulator = require('./services/trafficSimulator');
+
+// Connect to Database
+connectDB();
 
 // Initialize Express App
 const app = express();
@@ -44,15 +49,25 @@ if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
 }
 
 // REST Route Registrations
-const authRoutes = require('./routes/auth.routes');
-const trafficRoutes = require('./routes/traffic.routes');
-const emergencyRoutes = require('./routes/emergency.routes');
-const utilityRoutes = require('./routes/utility.routes');
+const authRoutes       = require('./routes/auth.routes');
+const trafficRoutes    = require('./routes/traffic.routes');
+const emergencyRoutes  = require('./routes/emergency.routes');
+const utilityRoutes    = require('./routes/utility.routes');
+const bookingRoutes    = require('./routes/booking.routes');
+const citizenRoutes    = require('./routes/citizen.routes');
+const departmentRoutes = require('./routes/department.routes');
+const searchRoutes     = require('./routes/search.routes');
+const dashboardRoutes  = require('./routes/dashboard.routes');
 
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/traffic', trafficRoutes);
-app.use('/api/v1/emergency', emergencyRoutes);
-app.use('/api/v1/utility', utilityRoutes);
+app.use('/api/v1/auth',        authRoutes);
+app.use('/api/v1/traffic',     trafficRoutes);
+app.use('/api/v1/emergency',   emergencyRoutes);
+app.use('/api/v1/utility',     utilityRoutes);
+app.use('/api/v1/bookings',    bookingRoutes);
+app.use('/api/v1/citizens',    citizenRoutes);
+app.use('/api/v1/departments', departmentRoutes);
+app.use('/api/v1/search',      searchRoutes);
+app.use('/api/v1/dashboard',   dashboardRoutes);
 
 // Base Route
 app.get('/', (req, res) => {
@@ -63,9 +78,35 @@ app.get('/', (req, res) => {
   });
 });
 
+// Initialize Traffic Simulator
+const trafficSimulator = new TrafficSimulator(io);
+trafficSimulator.start();
+
 // Socket.io Real-Time Connections
 io.on('connection', (socket) => {
   console.log(`🔌 Client connected: ${socket.id}`);
+
+  // Send current simulator state immediately to new client
+  socket.emit('sim_state', trafficSimulator.getState());
+
+  // Send current edge state immediately to new client
+  socket.emit('traffic_update', {
+    edges: trafficSimulator.edgeState.map(e => ({
+      source: e.source, target: e.target,
+      density: Math.round(e.density), speed: e.speed, distance: e.distance
+    })),
+    timestamp: new Date().toISOString()
+  });
+
+  socket.on('simulation_control', async ({ action, value }) => {
+    if (action === 'start')  trafficSimulator.start();
+    if (action === 'stop')   trafficSimulator.stop();
+    if (action === 'speed')  trafficSimulator.setSpeed(value);
+    if (action === 'spawn_emergency') {
+      await trafficSimulator.spawnEmergencyVehicle();
+    }
+    socket.emit('sim_state', trafficSimulator.getState());
+  });
 
   socket.on('join_room', (room) => {
     socket.join(room);
@@ -92,3 +133,5 @@ server.listen(PORT, () => {
 });
 
 module.exports = server;
+
+
