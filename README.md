@@ -1,120 +1,91 @@
-# Smart City Management System (SCMS)
+# 🏙️ Smart City Management System (SCMS)
 
-A production-ready, scalable, modular, and professional Smart City Management System final year project. This system utilizes a multi-tier MVC architecture combining a Node.js Express API, a Java Spring Boot Algorithm/DSA Engine, and a React + Vite responsive frontend, all stored and managed in a clean monorepo.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
+[![Java](https://img.shields.io/badge/Java-17%2F25-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green.svg)](https://www.mongodb.com/)
+
+A production-ready, scalable, modular, and professional **Smart City Management System (SCMS)**. SCMS combines a **React 18 + Vite** frontend, a **Node.js Express** API server, a **Java Spring Boot 3** Data Structures & Algorithms (DSA) Engine, and a **MongoDB** database to optimize urban traffic flows, emergency dispatches, and public utility resource allocations.
 
 ---
 
-## 🏗️ Project Architecture
+## 📚 Quick Links & Complete Documentation Suite
+
+- 🚀 **[Production Deployment Guide (`DEPLOYMENT.md`)](file:///d:/desktop/DSA_Project/DEPLOYMENT.md)** - Step-by-step deployment to Vercel, Render, Railway, & MongoDB Atlas.
+- 💻 **[Local Installation Guide (`INSTALLATION_GUIDE.md`)](file:///d:/desktop/DSA_Project/INSTALLATION_GUIDE.md)** - Complete setup instructions for running all services locally.
+- 📡 **[API Specifications (`API_DOCUMENTATION.md`)](file:///d:/desktop/DSA_Project/API_DOCUMENTATION.md)** - Full REST endpoints & Socket.io real-time WebSocket events.
+- 📑 **[Comprehensive Project Report (`PROJECT_REPORT.md`)](file:///d:/desktop/DSA_Project/PROJECT_REPORT.md)** - Academic & industrial architecture report.
+- 📐 **[System Diagrams Suite (`SYSTEM_DIAGRAMS.md`)](file:///d:/desktop/DSA_Project/SYSTEM_DIAGRAMS.md)** - Mermaid diagrams for Architecture, Sequence, Class, ER, Use Case, Deployment, & DFD (Levels 0–2).
+- 🎓 **[Viva & Interview Questions (`VIVA_AND_INTERVIEW_QUESTIONS.md`)](file:///d:/desktop/DSA_Project/VIVA_AND_INTERVIEW_QUESTIONS.md)** - Top 30+ Viva exam & technical interview Q&As.
+- 💼 **[Resume & Portfolio Descriptions (`RESUME_DESCRIPTION.md`)](file:///d:/desktop/DSA_Project/RESUME_DESCRIPTION.md)** - CV bullet points & technical skill highlights.
+
+---
+
+## 🏗️ System Architecture
 
 ```
-                                  +-----------------------+
-                                  |   React.js Frontend   |
-                                  |   (Vite + Tailwind)   |
-                                  +-----------+-----------+
-                                              | (HTTP/WebSockets)
-                                              v
-                                  +-----------+-----------+
-                                  |   Node.js Express     |
-                                  |     Backend API       |
-                                  +-----+-----------+-----+
-                                        |           | (HTTP REST)
-                           (MySQL Auth) |           v
-                                        |     +-----+-----+
-                                        v     | Java Spring |
-                                  +-----+---+ | Boot Engine |
-                                  | MySQL DB| | (DSA)       |
-                                  +---------+ +-------------+
++-------------------------------------------------------------------+
+|                     React 18 + Vite Frontend                      |
+|                  http://localhost:5173 (Vercel)                   |
++---------------------------------+---------------------------------+
+                                  | (HTTP REST / WebSockets)
+                                  v
++---------------------------------+---------------------------------+
+|                    Node.js Express API Server                     |
+|                  http://localhost:5050 (Render)                   |
++-------------------+-----------------------------+-----------------+
+                    |                             |
+      (MongoDB Wire Protocol)                     | (HTTP REST)
+                    v                             v
++-------------------+---------+  +----------------+-----------------+
+|  MongoDB NoSQL Database     |  |    Java Spring Boot DSA Engine   |
+|  mongodb://localhost:27017  |  |  http://localhost:8081 (Railway) |
++-----------------------------+  +----------------------------------+
 ```
 
-### 📂 Folder Structure Overview
+---
 
-- [frontend/](file:///d:/desktop/DSA_Project/frontend): Responsive dashboard with charts and real-time maps.
-- [backend/](file:///d:/desktop/DSA_Project/backend): Core REST API, socket servers for traffic flows, user authentication, and data controllers.
-- [java-engine/](file:///d:/desktop/DSA_Project/java-engine): Maven application encapsulating pathfinding (Dijkstra) and optimization algorithms.
-- [database/](file:///d:/desktop/DSA_Project/database): Schemas, seed scripts, and configuration logic for MySQL.
-- [documentation/](file:///d:/desktop/DSA_Project/documentation): Unified system specifications, ER Diagrams, and API blueprints.
+## 🛠️ Technology Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend Tier** | React 18, Vite 6, Tailwind CSS 4, React Router DOM 7, Lucide Icons, Leaflet.js, Chart.js |
+| **Backend API Tier** | Node.js v20, Express v4, Socket.io v4 (WebSockets), Mongoose ORM v8, JWT, Bcrypt |
+| **DSA Engine Tier** | Java 17/25, Spring Boot 3.2, Maven (`Dijkstra`, `A* Pathfinder`, `Kruskal's MST`) |
+| **Database Tier** | MongoDB Community Server / MongoDB Atlas |
 
 ---
 
-## 🛠️ Technology Stack & Dependencies
+## 🚀 Quick Local Launch Commands
 
-### Frontend
-- **Framework**: React.js 18 (Vite)
-- **Styling**: Tailwind CSS, PostCSS
-- **Navigation**: React Router DOM
-- **HTTP Client**: Axios
-- **Maps**: Leaflet.js, React Leaflet
-- **Analytics/Charts**: Chart.js, React-Chartjs-2
+```bash
+# 1. Start Java Spring Boot Engine (Port 8081)
+cd java-engine
+mvn spring-boot:run
 
-### Backend API
-- **Runtime**: Node.js & Express
-- **Database Connector**: MySQL2
-- **Auth**: JWT (JsonWebToken) & bcryptjs
-- **Real-time Engine**: Socket.io
-- **File Uploads**: Multer
-- **Validation/Security**: Helmet, Cors, Morgan
+# 2. Start Node.js Express Backend API (Port 5050)
+cd backend
+npm run dev
 
-### Algorithm Engine
-- **Framework**: Java Spring Boot 3
-- **Build Tool**: Maven
-- **DSA Core**: Custom graph and grid algorithms (Dijkstra's shortest path, Kruskal's MST, A* pathfinding, BFS/DFS).
+# 3. Start React Vite Frontend Client (Port 5173)
+cd frontend
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 🚀 Setup & Execution Instructions
+## 🔑 Demo Access Credentials
 
-### Prerequisites
-- Node.js (v18+)
-- Java JDK 17+
-- Maven 3.x+
-- MySQL Server
-
-### 1. Database Setup
-1. Create a MySQL database called `smart_city`.
-2. Execute the base schema and seed data from the [database/](file:///d:/desktop/DSA_Project/database) folder:
-   ```bash
-   mysql -u root -p smart_city < database/schema.sql
-   mysql -u root -p smart_city < database/seed.sql
-   ```
-
-### 2. Java Engine Setup
-1. Navigate to the `java-engine` directory.
-2. Compile and run:
-   ```bash
-   mvn clean install
-   mvn spring-boot:run
-   ```
-   *The engine will start on port `8081`.*
-
-### 3. Backend Express API Setup
-1. Navigate to the `backend` directory.
-2. Install packages:
-   ```bash
-   npm install
-   ```
-3. Copy environment sample and add details (DB credentials, JWT Secret, Java Engine endpoint):
-   ```bash
-   cp .env.example .env
-   ```
-4. Start development server:
-   ```bash
-   npm run dev
-   ```
-   *The API will start on port `5000`.*
-
-### 4. Frontend React Setup
-1. Navigate to the `frontend` directory.
-2. Install packages:
-   ```bash
-   npm install
-   ```
-3. Start the dev client:
-   ```bash
-   npm run dev
-   ```
-   *Open [http://localhost:5173](http://localhost:5173) in your browser.*
+| Role | Email | Password | Access Level |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin@smartcity.gov` | `password123` | Full access to all 8 modules (Dashboard, Emergency, Citizens, Departments, Navigation, Booking, Traffic, Utility) |
+| **Citizen (Client)** | `john.doe@gmail.com` | `password123` | Access to Client modules (Navigation, Booking, Traffic, Utility) |
 
 ---
 
-## 📝 Authors & Project Specifications
-This project is configured under clean architecture patterns and MVC. Refer to the [documentation/](file:///d:/desktop/DSA_Project/documentation) directory for ER diagrams and API schema blueprints.
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](file:///d:/desktop/DSA_Project/LICENSE) file for details.
