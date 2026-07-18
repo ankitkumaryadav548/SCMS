@@ -98,9 +98,12 @@ This guide provides step-by-step instructions for deploying all tiers of the **S
 
 1. **Deploy on Vercel**:
    - Log in to [Vercel.com](https://vercel.com).
-   - Click **Add New** -> **Project** -> Import `SCMS` repository.
-   - Set **Framework Preset**: `Vite`
-   - Set **Root Directory**: `frontend`
+   - Click **Add New** -> **Project** -> Import `ankitkumaryadav548/SCMS` repository.
+   - **CRITICAL SETTINGS IN VERCEL DASHBOARD**:
+     - **Framework Preset**: Select **`Vite`** (do NOT select Create React App or Other).
+     - **Root Directory**: Click Edit and enter **`frontend`** (or click `./frontend`).
+     - **Build Command**: `vite build` (or leave default).
+     - **Output Directory**: `dist` (or leave default).
 
 2. **Configure Environment Variables on Vercel**:
    | Variable | Value | Description |
@@ -109,8 +112,8 @@ This guide provides step-by-step instructions for deploying all tiers of the **S
    | `VITE_SOCKET_URL` | `https://smart-city-backend.onrender.com` | Public Render WebSocket URL |
 
 3. **Deploy & SPA Rewrite**:
-   - Vercel uses [`frontend/vercel.json`](file:///d:/desktop/DSA_Project/frontend/vercel.json) to handle single-page application route rewrites automatically.
-   - Click **Deploy**. Your app will be live at `https://smart-city-management.vercel.app`.
+   - Both [`vercel.json`](file:///d:/desktop/DSA_Project/vercel.json) and [`frontend/vercel.json`](file:///d:/desktop/DSA_Project/frontend/vercel.json) are included to handle Vite builds and single-page routing automatically.
+   - Click **Deploy**. Your app will build cleanly without any `react-scripts` errors.
 
 ---
 
