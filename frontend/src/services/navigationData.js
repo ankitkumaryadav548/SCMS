@@ -1,42 +1,42 @@
 /**
- * Navigation Module - Manhattan Intersection Network
+ * Navigation Module - New Delhi Intersection Network
  * 
- * Intersections (Nodes) centered in Manhattan, NYC.
+ * Intersections (Nodes) centered in New Delhi, India.
  */
 export const NAVIGATION_NODES = {
-  TimesSquare: { name: 'Connaught Place', lat: 28.6304, lng: 77.2177 },
-  CentralPark: { name: 'India Gate', lat: 28.6129, lng: 77.2295 },
-  GrandCentral: { name: 'New Delhi Railway Station', lat: 28.6429, lng: 77.2217 },
-  EmpireState: { name: 'Rashtrapati Bhavan', lat: 28.6143, lng: 77.2002 },
-  UnionSquare: { name: 'Karol Bagh', lat: 28.6444, lng: 77.1903 },
-  WashSquare: { name: 'Rajendra Place', lat: 28.6425, lng: 77.1780 },
-  SoHo: { name: 'Patel Nagar', lat: 28.6450, lng: 77.1585 },
-  WallStreet: { name: 'Chandni Chowk', lat: 28.6506, lng: 77.2303 },
-  Chinatown: { name: 'Red Fort', lat: 28.6562, lng: 77.2410 },
-  EastVillage: { name: 'Raj Ghat', lat: 28.6406, lng: 77.2495 },
-  ChelseaMarket: { name: 'Lodhi Garden', lat: 28.5933, lng: 77.2189 },
-  HudsonYards: { name: 'Safdarjung Tomb', lat: 28.5893, lng: 77.2106 }
+  ConnaughtPlace:          { name: 'Connaught Place',          lat: 28.6304, lng: 77.2177 },
+  IndiaGate:               { name: 'India Gate',               lat: 28.6129, lng: 77.2295 },
+  NewDelhiRailwayStation:  { name: 'New Delhi Railway Station',lat: 28.6429, lng: 77.2217 },
+  RashtrapatiBhavan:       { name: 'Rashtrapati Bhavan',       lat: 28.6143, lng: 77.2002 },
+  KarolBagh:               { name: 'Karol Bagh',               lat: 28.6444, lng: 77.1903 },
+  RajendraPlace:           { name: 'Rajendra Place',           lat: 28.6425, lng: 77.1780 },
+  PatelNagar:              { name: 'Patel Nagar',              lat: 28.6450, lng: 77.1585 },
+  ChandniChowk:            { name: 'Chandni Chowk',            lat: 28.6506, lng: 77.2303 },
+  RedFort:                 { name: 'Red Fort',                 lat: 28.6562, lng: 77.2410 },
+  RajGhat:                 { name: 'Raj Ghat',                 lat: 28.6406, lng: 77.2495 },
+  LodhiGarden:             { name: 'Lodhi Garden',             lat: 28.5933, lng: 77.2189 },
+  SafdarjungTomb:          { name: 'Safdarjung Tomb',          lat: 28.5893, lng: 77.2106 }
 };
 
 // Connections (Edges) between intersections
 export const NAVIGATION_EDGES = [
-  { source: 'TimesSquare', target: 'CentralPark', distance: 1.2, baseSpeed: 40, toll: 0, defaultDensity: 35 },
-  { source: 'TimesSquare', target: 'GrandCentral', distance: 0.8, baseSpeed: 30, toll: 0, defaultDensity: 65 },
-  { source: 'TimesSquare', target: 'HudsonYards', distance: 1.4, baseSpeed: 40, toll: 0, defaultDensity: 20 },
-  { source: 'TimesSquare', target: 'EmpireState', distance: 1.1, baseSpeed: 30, toll: 0, defaultDensity: 80 },
-  { source: 'CentralPark', target: 'GrandCentral', distance: 1.5, baseSpeed: 45, toll: 0, defaultDensity: 40 },
-  { source: 'GrandCentral', target: 'EmpireState', distance: 0.7, baseSpeed: 30, toll: 0, defaultDensity: 70 },
-  { source: 'HudsonYards', target: 'ChelseaMarket', distance: 1.3, baseSpeed: 40, toll: 0, defaultDensity: 25 },
-  { source: 'ChelseaMarket', target: 'WashSquare', distance: 1.6, baseSpeed: 35, toll: 0, defaultDensity: 30 },
-  { source: 'ChelseaMarket', target: 'EmpireState', distance: 1.8, baseSpeed: 35, toll: 0, defaultDensity: 50 },
-  { source: 'EmpireState', target: 'UnionSquare', distance: 1.5, baseSpeed: 35, toll: 0, defaultDensity: 60 },
-  { source: 'UnionSquare', target: 'EastVillage', distance: 1.0, baseSpeed: 30, toll: 0, defaultDensity: 45 },
-  { source: 'UnionSquare', target: 'WashSquare', distance: 0.7, baseSpeed: 30, toll: 0, defaultDensity: 40 },
-  { source: 'WashSquare', target: 'SoHo', distance: 0.9, baseSpeed: 30, toll: 0, defaultDensity: 50 },
-  { source: 'SoHo', target: 'Chinatown', distance: 1.0, baseSpeed: 25, toll: 0, defaultDensity: 70 },
-  { source: 'SoHo', target: 'WallStreet', distance: 2.0, baseSpeed: 45, toll: 5.50, defaultDensity: 15 }, // Toll road simulator
-  { source: 'EastVillage', target: 'Chinatown', distance: 1.3, baseSpeed: 30, toll: 0, defaultDensity: 55 },
-  { source: 'Chinatown', target: 'WallStreet', distance: 1.2, baseSpeed: 25, toll: 0, defaultDensity: 60 }
+  { source: 'ConnaughtPlace',         target: 'IndiaGate',              distance: 1.2, baseSpeed: 40, toll: 0, defaultDensity: 35 },
+  { source: 'ConnaughtPlace',         target: 'NewDelhiRailwayStation', distance: 0.8, baseSpeed: 30, toll: 0, defaultDensity: 65 },
+  { source: 'ConnaughtPlace',         target: 'SafdarjungTomb',         distance: 1.4, baseSpeed: 40, toll: 0, defaultDensity: 20 },
+  { source: 'ConnaughtPlace',         target: 'RashtrapatiBhavan',      distance: 1.1, baseSpeed: 30, toll: 0, defaultDensity: 80 },
+  { source: 'IndiaGate',              target: 'NewDelhiRailwayStation', distance: 1.5, baseSpeed: 45, toll: 0, defaultDensity: 40 },
+  { source: 'NewDelhiRailwayStation', target: 'RashtrapatiBhavan',      distance: 0.7, baseSpeed: 30, toll: 0, defaultDensity: 70 },
+  { source: 'SafdarjungTomb',         target: 'LodhiGarden',            distance: 1.3, baseSpeed: 40, toll: 0, defaultDensity: 25 },
+  { source: 'LodhiGarden',            target: 'RajendraPlace',          distance: 1.6, baseSpeed: 35, toll: 0, defaultDensity: 30 },
+  { source: 'LodhiGarden',            target: 'RashtrapatiBhavan',      distance: 1.8, baseSpeed: 35, toll: 0, defaultDensity: 50 },
+  { source: 'RashtrapatiBhavan',      target: 'KarolBagh',              distance: 1.5, baseSpeed: 35, toll: 0, defaultDensity: 60 },
+  { source: 'KarolBagh',              target: 'RajGhat',                distance: 1.0, baseSpeed: 30, toll: 0, defaultDensity: 45 },
+  { source: 'KarolBagh',              target: 'RajendraPlace',          distance: 0.7, baseSpeed: 30, toll: 0, defaultDensity: 40 },
+  { source: 'RajendraPlace',          target: 'PatelNagar',             distance: 0.9, baseSpeed: 30, toll: 0, defaultDensity: 50 },
+  { source: 'PatelNagar',             target: 'RedFort',                distance: 1.0, baseSpeed: 25, toll: 0, defaultDensity: 70 },
+  { source: 'PatelNagar',             target: 'ChandniChowk',           distance: 2.0, baseSpeed: 45, toll: 5.50, defaultDensity: 15 }, // Toll road simulator
+  { source: 'RajGhat',                target: 'RedFort',                distance: 1.3, baseSpeed: 30, toll: 0, defaultDensity: 55 },
+  { source: 'RedFort',                target: 'ChandniChowk',           distance: 1.2, baseSpeed: 25, toll: 0, defaultDensity: 60 }
 ];
 
 /**

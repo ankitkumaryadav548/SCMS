@@ -72,14 +72,16 @@ const MapController = ({ center, bounds }) => {
 
 const NavigationPage = () => {
   // State variables
-  const [startNode, setStartNode] = useState('TimesSquare');
-  const [endNode, setEndNode] = useState('WallStreet');
-  const [startInputText, setStartInputText] = useState(NAVIGATION_NODES.TimesSquare.name);
-  const [endInputText, setEndInputText] = useState(NAVIGATION_NODES.WallStreet.name);
+  const [startNode, setStartNode] = useState('ConnaughtPlace');
+  const [endNode, setEndNode] = useState('ChandniChowk');
+  const [startInputText, setStartInputText] = useState(NAVIGATION_NODES.ConnaughtPlace.name);
+  const [endInputText, setEndInputText] = useState(NAVIGATION_NODES.ChandniChowk.name);
   const [customStartCoords, setCustomStartCoords] = useState(null);
   const [customEndCoords, setCustomEndCoords] = useState(null);
   const [startSuggestions, setStartSuggestions] = useState([]);
   const [endSuggestions, setEndSuggestions] = useState([]);
+  const [useCustomStart, setUseCustomStart] = useState(false);
+  const [useCustomEnd, setUseCustomEnd] = useState(false);
 
   const [routeMode, setRouteMode] = useState('fastest'); // shortest vs fastest
   const [trafficMultiplier, setTrafficMultiplier] = useState(1.0); // slider
@@ -448,10 +450,10 @@ const NavigationPage = () => {
     setSearchQuery('');
     setSelectedSearchNode(null);
     setMapBounds(null);
-    setStartNode('TimesSquare');
-    setEndNode('WallStreet');
-    setStartInputText(NAVIGATION_NODES.TimesSquare.name);
-    setEndInputText(NAVIGATION_NODES.WallStreet.name);
+    setStartNode('ConnaughtPlace');
+    setEndNode('ChandniChowk');
+    setStartInputText(NAVIGATION_NODES.ConnaughtPlace.name);
+    setEndInputText(NAVIGATION_NODES.ChandniChowk.name);
     setCustomStartCoords(null);
     setCustomEndCoords(null);
     setStartSuggestions([]);
@@ -584,48 +586,90 @@ const NavigationPage = () => {
                 
                 {/* Origin selection */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-darkbg-textMuted mb-1.5">
-                    Start Location
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-darkbg-textMuted mb-1.5 flex items-center justify-between">
+                    <span>Start Location</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseCustomStart(!useCustomStart);
+                        if (useCustomStart) setStartInputText(NAVIGATION_NODES[startNode]?.name || '');
+                      }}
+                      className="text-[10px] text-brand-400 hover:text-brand-300 underline font-normal cursor-pointer"
+                    >
+                      {useCustomStart ? "Select from list" : "Type custom..."}
+                    </button>
                   </label>
-                  <input
-                    type="text"
-                    list="start-suggestions"
-                    value={startInputText}
-                    onChange={(e) => setStartInputText(e.target.value)}
-                    placeholder="Enter start landmark or custom city..."
-                    className="w-full bg-black border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
-                  />
-                  <datalist id="start-suggestions">
-                    {Object.entries(NAVIGATION_NODES).map(([key, val]) => (
-                      <option key={key} value={val.name} />
-                    ))}
-                    {startSuggestions.map((item, idx) => (
-                      <option key={`start-suggestion-${idx}`} value={item.name} />
-                    ))}
-                  </datalist>
+                  {useCustomStart ? (
+                    <input
+                      type="text"
+                      list="start-suggestions"
+                      value={startInputText}
+                      onChange={(e) => setStartInputText(e.target.value)}
+                      placeholder="Type custom landmark or address..."
+                      className="w-full bg-black border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
+                    />
+                  ) : (
+                    <select
+                      value={startNode}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setStartNode(val);
+                        setStartInputText(NAVIGATION_NODES[val].name);
+                        setCustomStartCoords(null);
+                      }}
+                      className="w-full bg-black border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors cursor-pointer"
+                    >
+                      {Object.entries(NAVIGATION_NODES).map(([key, val]) => (
+                        <option key={key} value={key} className="bg-darkbg-card text-white py-1">
+                          📍 {val.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 {/* Destination selection */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-darkbg-textMuted mb-1.5">
-                    End Location
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-darkbg-textMuted mb-1.5 flex items-center justify-between">
+                    <span>End Location</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseCustomEnd(!useCustomEnd);
+                        if (useCustomEnd) setEndInputText(NAVIGATION_NODES[endNode]?.name || '');
+                      }}
+                      className="text-[10px] text-brand-400 hover:text-brand-300 underline font-normal cursor-pointer"
+                    >
+                      {useCustomEnd ? "Select from list" : "Type custom..."}
+                    </button>
                   </label>
-                  <input
-                    type="text"
-                    list="end-suggestions"
-                    value={endInputText}
-                    onChange={(e) => setEndInputText(e.target.value)}
-                    placeholder="Enter destination or custom city..."
-                    className="w-full bg-black border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
-                  />
-                  <datalist id="end-suggestions">
-                    {Object.entries(NAVIGATION_NODES).map(([key, val]) => (
-                      <option key={key} value={val.name} />
-                    ))}
-                    {endSuggestions.map((item, idx) => (
-                      <option key={`end-suggestion-${idx}`} value={item.name} />
-                    ))}
-                  </datalist>
+                  {useCustomEnd ? (
+                    <input
+                      type="text"
+                      list="end-suggestions"
+                      value={endInputText}
+                      onChange={(e) => setEndInputText(e.target.value)}
+                      placeholder="Type custom destination or address..."
+                      className="w-full bg-black border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
+                    />
+                  ) : (
+                    <select
+                      value={endNode}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEndNode(val);
+                        setEndInputText(NAVIGATION_NODES[val].name);
+                        setCustomEndCoords(null);
+                      }}
+                      className="w-full bg-black border border-darkbg-border rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors cursor-pointer"
+                    >
+                      {Object.entries(NAVIGATION_NODES).map(([key, val]) => (
+                        <option key={key} value={key} className="bg-darkbg-card text-white py-1">
+                          🏁 {val.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
               </div>

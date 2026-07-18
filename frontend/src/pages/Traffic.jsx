@@ -12,18 +12,18 @@ import {
 
 // ── Node coordinates (Delhi intersections) ───────────────────────────
 const NODES = {
-  TimesSquare:   { name: 'Connaught Place',          lat: 28.6304, lng: 77.2177 },
-  CentralPark:   { name: 'India Gate',               lat: 28.6129, lng: 77.2295 },
-  GrandCentral:  { name: 'New Delhi Rly Station',    lat: 28.6429, lng: 77.2217 },
-  EmpireState:   { name: 'Rashtrapati Bhavan',       lat: 28.6143, lng: 77.2002 },
-  UnionSquare:   { name: 'Karol Bagh',               lat: 28.6444, lng: 77.1903 },
-  WashSquare:    { name: 'Rajendra Place',           lat: 28.6425, lng: 77.1780 },
-  SoHo:          { name: 'Patel Nagar',              lat: 28.6450, lng: 77.1585 },
-  WallStreet:    { name: 'Chandni Chowk',            lat: 28.6506, lng: 77.2303 },
-  Chinatown:     { name: 'Red Fort',                 lat: 28.6562, lng: 77.2410 },
-  EastVillage:   { name: 'Raj Ghat',                 lat: 28.6406, lng: 77.2495 },
-  ChelseaMarket: { name: 'Lodhi Garden',             lat: 28.5933, lng: 77.2189 },
-  HudsonYards:   { name: 'Safdarjung Tomb',          lat: 28.5893, lng: 77.2106 },
+  ConnaughtPlace:          { name: 'Connaught Place',          lat: 28.6304, lng: 77.2177 },
+  IndiaGate:               { name: 'India Gate',               lat: 28.6129, lng: 77.2295 },
+  NewDelhiRailwayStation:  { name: 'New Delhi Rly Station',    lat: 28.6429, lng: 77.2217 },
+  RashtrapatiBhavan:       { name: 'Rashtrapati Bhavan',       lat: 28.6143, lng: 77.2002 },
+  KarolBagh:               { name: 'Karol Bagh',               lat: 28.6444, lng: 77.1903 },
+  RajendraPlace:           { name: 'Rajendra Place',           lat: 28.6425, lng: 77.1780 },
+  PatelNagar:              { name: 'Patel Nagar',              lat: 28.6450, lng: 77.1585 },
+  ChandniChowk:            { name: 'Chandni Chowk',            lat: 28.6506, lng: 77.2303 },
+  RedFort:                 { name: 'Red Fort',                 lat: 28.6562, lng: 77.2410 },
+  RajGhat:                 { name: 'Raj Ghat',                 lat: 28.6406, lng: 77.2495 },
+  LodhiGarden:             { name: 'Lodhi Garden',             lat: 28.5933, lng: 77.2189 },
+  SafdarjungTomb:          { name: 'Safdarjung Tomb',          lat: 28.5893, lng: 77.2106 },
 };
 
 /** Get colour from density value */

@@ -17,7 +17,12 @@ const Register = () => {
     setError('');
     const res = await register(name, email, password, role);
     if (res.success) {
-      navigate('/dashboard');
+      const userRole = res.user?.role || role;
+      if (['Admin', 'Operator'].includes(userRole)) {
+        navigate('/dashboard');
+      } else {
+        navigate('/navigation');
+      }
     } else {
       setError(res.message);
     }

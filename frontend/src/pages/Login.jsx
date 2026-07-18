@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Landmark, Mail, Lock, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Landmark, Mail, Lock, AlertCircle, ShieldCheck, User } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +15,12 @@ const Login = () => {
     setError('');
     const res = await login(email, password);
     if (res.success) {
-      navigate('/dashboard');
+      const userRole = res.user?.role || 'Citizen';
+      if (['Admin', 'Operator'].includes(userRole)) {
+        navigate('/dashboard');
+      } else {
+        navigate('/navigation');
+      }
     } else {
       setError(res.message);
     }
@@ -95,18 +100,31 @@ const Login = () => {
           </Link>
         </p>
 
-        {/* Quick Admin Login Button */}
+        {/* Quick Login Options */}
         <div className="w-full mt-6 pt-6 border-t border-darkbg-border flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => { setEmail('admin@smartcity.gov'); setPassword('password123'); }}
-            className="w-full bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 text-brand-400 hover:text-brand-300 font-semibold py-2.5 rounded-xl text-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-          >
-            <ShieldCheck className="h-4 w-4" />
-            Sign In as Administrator (Quick Fill)
-          </button>
-          <span className="text-[10px] text-darkbg-textMuted text-center font-mono">
-            Demo credentials: admin@smartcity.gov / password123
+          <span className="text-[11px] font-semibold text-darkbg-textMuted text-center uppercase tracking-wider mb-1">
+            Demo Quick Login Options
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => { setEmail('admin@smartcity.gov'); setPassword('password123'); }}
+              className="bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 text-brand-400 hover:text-brand-300 font-semibold py-2 px-3 rounded-xl text-xs transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+            >
+              <ShieldCheck className="h-4 w-4 shrink-0" />
+              Admin Portal
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail('john.doe@gmail.com'); setPassword('password123'); }}
+              className="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 font-semibold py-2 px-3 rounded-xl text-xs transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+            >
+              <User className="h-4 w-4 shrink-0" />
+              Citizen Portal
+            </button>
+          </div>
+          <span className="text-[10px] text-darkbg-textMuted text-center font-mono mt-1">
+            Password for all demo accounts: <code className="text-white">password123</code>
           </span>
         </div>
       </div>

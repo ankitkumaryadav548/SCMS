@@ -5,29 +5,29 @@
  */
 
 const EDGES = [
-  { source: 'TimesSquare',  target: 'CentralPark',   distance: 1.2, baseSpeed: 40 },
-  { source: 'TimesSquare',  target: 'GrandCentral',  distance: 0.8, baseSpeed: 30 },
-  { source: 'TimesSquare',  target: 'HudsonYards',   distance: 1.4, baseSpeed: 40 },
-  { source: 'TimesSquare',  target: 'EmpireState',   distance: 1.1, baseSpeed: 30 },
-  { source: 'CentralPark',  target: 'GrandCentral',  distance: 1.5, baseSpeed: 45 },
-  { source: 'GrandCentral', target: 'EmpireState',   distance: 0.7, baseSpeed: 30 },
-  { source: 'HudsonYards',  target: 'ChelseaMarket', distance: 1.3, baseSpeed: 40 },
-  { source: 'ChelseaMarket',target: 'WashSquare',    distance: 1.6, baseSpeed: 35 },
-  { source: 'ChelseaMarket',target: 'EmpireState',   distance: 1.8, baseSpeed: 35 },
-  { source: 'EmpireState',  target: 'UnionSquare',   distance: 1.5, baseSpeed: 35 },
-  { source: 'UnionSquare',  target: 'EastVillage',   distance: 1.0, baseSpeed: 30 },
-  { source: 'UnionSquare',  target: 'WashSquare',    distance: 0.7, baseSpeed: 30 },
-  { source: 'WashSquare',   target: 'SoHo',          distance: 0.9, baseSpeed: 30 },
-  { source: 'SoHo',         target: 'Chinatown',     distance: 1.0, baseSpeed: 25 },
-  { source: 'SoHo',         target: 'WallStreet',    distance: 2.0, baseSpeed: 45 },
-  { source: 'EastVillage',  target: 'Chinatown',     distance: 1.3, baseSpeed: 30 },
-  { source: 'Chinatown',    target: 'WallStreet',    distance: 1.2, baseSpeed: 25 },
+  { source: 'ConnaughtPlace',         target: 'IndiaGate',              distance: 1.2, baseSpeed: 40 },
+  { source: 'ConnaughtPlace',         target: 'NewDelhiRailwayStation', distance: 0.8, baseSpeed: 30 },
+  { source: 'ConnaughtPlace',         target: 'SafdarjungTomb',         distance: 1.4, baseSpeed: 40 },
+  { source: 'ConnaughtPlace',         target: 'RashtrapatiBhavan',      distance: 1.1, baseSpeed: 30 },
+  { source: 'IndiaGate',              target: 'NewDelhiRailwayStation', distance: 1.5, baseSpeed: 45 },
+  { source: 'NewDelhiRailwayStation', target: 'RashtrapatiBhavan',      distance: 0.7, baseSpeed: 30 },
+  { source: 'SafdarjungTomb',         target: 'LodhiGarden',            distance: 1.3, baseSpeed: 40 },
+  { source: 'LodhiGarden',            target: 'RajendraPlace',          distance: 1.6, baseSpeed: 35 },
+  { source: 'LodhiGarden',            target: 'RashtrapatiBhavan',      distance: 1.8, baseSpeed: 35 },
+  { source: 'RashtrapatiBhavan',      target: 'KarolBagh',              distance: 1.5, baseSpeed: 35 },
+  { source: 'KarolBagh',              target: 'RajGhat',                distance: 1.0, baseSpeed: 30 },
+  { source: 'KarolBagh',              target: 'RajendraPlace',          distance: 0.7, baseSpeed: 30 },
+  { source: 'RajendraPlace',          target: 'PatelNagar',             distance: 0.9, baseSpeed: 30 },
+  { source: 'PatelNagar',             target: 'RedFort',                distance: 1.0, baseSpeed: 25 },
+  { source: 'PatelNagar',             target: 'ChandniChowk',           distance: 2.0, baseSpeed: 45 },
+  { source: 'RajGhat',                target: 'RedFort',                distance: 1.3, baseSpeed: 30 },
+  { source: 'RedFort',                target: 'ChandniChowk',           distance: 1.2, baseSpeed: 25 },
 ];
 
 const NODES = [
-  'TimesSquare','CentralPark','GrandCentral','EmpireState',
-  'UnionSquare','WashSquare','SoHo','WallStreet','Chinatown',
-  'EastVillage','ChelseaMarket','HudsonYards'
+  'ConnaughtPlace','IndiaGate','NewDelhiRailwayStation','RashtrapatiBhavan',
+  'KarolBagh','RajendraPlace','PatelNagar','ChandniChowk','RedFort',
+  'RajGhat','LodhiGarden','SafdarjungTomb'
 ];
 
 const VEHICLE_NAMES = [

@@ -28,18 +28,19 @@ public class AStar {
 
     private static final Map<String, double[]> coordinates = new HashMap<>();
     static {
-        coordinates.put("TimesSquare", new double[]{28.6304, 77.2177});
-        coordinates.put("CentralPark", new double[]{28.6129, 77.2295});
-        coordinates.put("GrandCentral", new double[]{28.6429, 77.2217});
-        coordinates.put("EmpireState", new double[]{28.6143, 77.2002});
-        coordinates.put("UnionSquare", new double[]{28.6444, 77.1903});
-        coordinates.put("WashSquare", new double[]{28.6425, 77.1780});
-        coordinates.put("SoHo", new double[]{28.6450, 77.1585});
-        coordinates.put("WallStreet", new double[]{28.6506, 77.2303});
-        coordinates.put("Chinatown", new double[]{28.6562, 77.2410});
-        coordinates.put("EastVillage", new double[]{28.6406, 77.2495});
-        coordinates.put("ChelseaMarket", new double[]{28.5933, 77.2189});
-        coordinates.put("HudsonYards", new double[]{28.5893, 77.2106});
+        // Official New Delhi Nodes & Coordinates
+        coordinates.put("ConnaughtPlace",          new double[]{28.6304, 77.2177});
+        coordinates.put("IndiaGate",               new double[]{28.6129, 77.2295});
+        coordinates.put("NewDelhiRailwayStation",  new double[]{28.6429, 77.2217});
+        coordinates.put("RashtrapatiBhavan",       new double[]{28.6143, 77.2002});
+        coordinates.put("KarolBagh",               new double[]{28.6444, 77.1903});
+        coordinates.put("RajendraPlace",           new double[]{28.6425, 77.1780});
+        coordinates.put("PatelNagar",              new double[]{28.6450, 77.1585});
+        coordinates.put("ChandniChowk",            new double[]{28.6506, 77.2303});
+        coordinates.put("RedFort",                 new double[]{28.6562, 77.2410});
+        coordinates.put("RajGhat",                 new double[]{28.6406, 77.2495});
+        coordinates.put("LodhiGarden",             new double[]{28.5933, 77.2189});
+        coordinates.put("SafdarjungTomb",          new double[]{28.5893, 77.2106});
     }
 
     private static double getHeuristic(String node, String target) {
