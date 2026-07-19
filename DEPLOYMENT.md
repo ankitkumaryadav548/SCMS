@@ -9,7 +9,7 @@ This guide provides step-by-step instructions for deploying all tiers of the **S
 ```
 +-------------------------------------------------------------------+
 |                     Vercel (React + Vite)                         |
-|                 https://smart-city.vercel.app                     |
+|                   https://scms-lac.vercel.app                     |
 +---------------------------------+---------------------------------+
                                   | (HTTPS REST / WebSockets)
                                   v
