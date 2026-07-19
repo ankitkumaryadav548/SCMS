@@ -8,54 +8,33 @@ const NodeLog = require('../models/NodeLog');
 
 async function seedMongo() {
   try {
+    // Standard bcrypt hash for 'password123'
+    const DEMO_PASSWORD_HASH = '$2a$10$GLuAGaqQzSL5osK61w0rm.E6G4RkwFvKxN1oR5yEUb/3/nLUXTia2';
+
+    // 1. Ensure Demo Accounts always exist & have matching credentials for 'password123'
+    const demoAccounts = [
+      { name: 'Admin User', email: 'admin@smartcity.gov', password: DEMO_PASSWORD_HASH, role: 'Admin' },
+      { name: 'Operator Jane', email: 'jane.operator@smartcity.gov', password: DEMO_PASSWORD_HASH, role: 'Operator' },
+      { name: 'John Citizen', email: 'john.doe@gmail.com', password: DEMO_PASSWORD_HASH, role: 'Citizen' },
+      { name: 'Guest Visitor', email: 'visitor@smartcity.gov', password: DEMO_PASSWORD_HASH, role: 'Visitor' }
+    ];
+
+    for (const acc of demoAccounts) {
+      await User.findOneAndUpdate(
+        { email: acc.email },
+        { $set: { name: acc.name, password: acc.password, role: acc.role } },
+        { upsert: true, new: true }
+      );
+    }
+    console.log('✅ Demo user accounts verified and synchronized.');
+
     const userCount = await User.countDocuments();
-    if (userCount > 0) {
-      console.log('Database already has data. Skipping seed.');
+    if (userCount > 4) {
+      console.log('Database already initialized. Skipping full dataset re-seed.');
       return;
     }
 
     console.log('🌱 Seeding MongoDB Database...');
-
-    // 1. Seed Users
-    const userIds = {
-      admin: new mongoose.Types.ObjectId(),
-      operator: new mongoose.Types.ObjectId(),
-      citizen: new mongoose.Types.ObjectId(),
-      visitor: new mongoose.Types.ObjectId()
-    };
-
-    const users = [
-      {
-        _id: userIds.admin,
-        name: 'Admin User',
-        email: 'admin@smartcity.gov',
-        password: '$2a$10$DB3d3UdxQzTNhR7ZJFbFSO3TlqzMLDCCoCRLG5Qo43NeIDwjEVWiG',
-        role: 'Admin'
-      },
-      {
-        _id: userIds.operator,
-        name: 'Operator Jane',
-        email: 'jane.operator@smartcity.gov',
-        password: '$2a$10$DB3d3UdxQzTNhR7ZJFbFSO3TlqzMLDCCoCRLG5Qo43NeIDwjEVWiG',
-        role: 'Operator'
-      },
-      {
-        _id: userIds.citizen,
-        name: 'John Citizen',
-        email: 'john.doe@gmail.com',
-        password: '$2a$10$DB3d3UdxQzTNhR7ZJFbFSO3TlqzMLDCCoCRLG5Qo43NeIDwjEVWiG',
-        role: 'Citizen'
-      },
-      {
-        _id: userIds.visitor,
-        name: 'Guest Visitor',
-        email: 'visitor@smartcity.gov',
-        password: '$2a$10$DB3d3UdxQzTNhR7ZJFbFSO3TlqzMLDCCoCRLG5Qo43NeIDwjEVWiG',
-        role: 'Visitor'
-      }
-    ];
-    await User.insertMany(users);
-    console.log('✅ Users seeded.');
 
     // 2. Seed Traffic Sensors
     const sensorIds = [
@@ -219,6 +198,13 @@ async function seedMongo() {
   } catch (error) {
     console.error('❌ Error seeding MongoDB:', error.message);
   }
+}
+
+module.exports = seedMongo;
+console.log('🎉 MongoDB Seeding completed successfully!');
+  } catch (error) {
+  console.error('❌ Error seeding MongoDB:', error.message);
+}
 }
 
 module.exports = seedMongo;
