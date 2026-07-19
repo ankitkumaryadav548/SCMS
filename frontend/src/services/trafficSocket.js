@@ -4,9 +4,20 @@
  */
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace('/api/v1', '')
-  : 'http://localhost:5050';
+const getSocketURL = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace('/api/v1', '');
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:5050';
+    }
+  }
+  return 'https://scms-1-kplt.onrender.com';
+};
+
+const SOCKET_URL = getSocketURL();
 
 let socket = null;
 
