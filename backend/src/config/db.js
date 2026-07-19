@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// Ensure Node DNS resolver uses public DNS to avoid querySrv ECONNREFUSED on Windows/cloud
+try {
+  const dns = require('dns');
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (dnsErr) {
+  // Ignore fallback if unsupported
+}
+
 const connectDB = async () => {
   try {
     const uri = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL;
