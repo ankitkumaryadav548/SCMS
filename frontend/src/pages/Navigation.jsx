@@ -440,15 +440,17 @@ const NavigationPage = () => {
     setMapCenter([NAVIGATION_NODES[nodeKey].lat, NAVIGATION_NODES[nodeKey].lng]);
   };
 
-  // Reset routing session
+  // Reset routing session and map view
   const handleReset = () => {
     setPrimaryRoute(null);
     setAlternativeRoute(null);
     setComparisonData(null);
     setError('');
-    setInfoMessage('');
+    setInfoMessage('Map view and route settings reset to defaults.');
     setSearchQuery('');
+    setSearchResults([]);
     setSelectedSearchNode(null);
+    setMapCenter([28.63, 77.22]);
     setMapBounds(null);
     setStartNode('ConnaughtPlace');
     setEndNode('ChandniChowk');
@@ -458,6 +460,13 @@ const NavigationPage = () => {
     setCustomEndCoords(null);
     setStartSuggestions([]);
     setEndSuggestions([]);
+    setUseCustomStart(false);
+    setUseCustomEnd(false);
+    setRouteMode('fastest');
+    setTrafficMultiplier(1.0);
+    setShowTrafficLayer(true);
+    setShowAlternativeRoute(true);
+    setLoading(false);
   };
 
   // Dynamic colors for traffic congestion on map
