@@ -1,11 +1,16 @@
 # 🏙️ Smart City Management System (SCMS)
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-brightgreen.svg?style=for-the-badge&logo=vercel)](https://scms-git-main-ankitkumaryadav548s-projects.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
 [![Java](https://img.shields.io/badge/Java-17%2F25-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green.svg)](https://www.mongodb.com/)
+
+> 🌐 **Live Web Application URL**: [https://scms-git-main-ankitkumaryadav548s-projects.vercel.app](https://scms-git-main-ankitkumaryadav548s-projects.vercel.app)
+>
+> *(Recommended Live Deployment Domain — auto-updates on every git push).*
 
 A production-ready, scalable, modular, and professional **Smart City Management System (SCMS)**. SCMS combines a **React 18 + Vite** frontend, a **Node.js Express** API server, a **Java Spring Boot 3** Data Structures & Algorithms (DSA) Engine, and a **MongoDB** database to optimize urban traffic flows, emergency dispatches, and public utility resource allocations.
 
