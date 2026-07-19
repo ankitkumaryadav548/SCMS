@@ -39,7 +39,6 @@ citizenSchema.set('toJSON',   { virtuals: true });
 citizenSchema.set('toObject', { virtuals: true });
 
 // Optimize query performance with indexes on search, sort and filter fields
-citizenSchema.index({ citizenId: 1 });
 citizenSchema.index({ name: 1 });
 citizenSchema.index({ status: 1 });
 citizenSchema.index({ category: 1 });
