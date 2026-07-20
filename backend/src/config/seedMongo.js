@@ -3,7 +3,6 @@ const User = require('../models/User');
 const TrafficSensor = require('../models/TrafficSensor');
 const TrafficLog = require('../models/TrafficLog');
 const EmergencyIncident = require('../models/EmergencyIncident');
-const UtilityGrid = require('../models/UtilityGrid');
 const NodeLog = require('../models/NodeLog');
 
 async function seedMongo() {
@@ -141,42 +140,6 @@ async function seedMongo() {
       ];
       await EmergencyIncident.insertMany(emergencyIncidents);
       console.log('✅ Emergency incidents seeded.');
-    }
-
-    // 5. Seed Utility Grids if empty
-    const gridCount = await UtilityGrid.countDocuments();
-    if (gridCount === 0) {
-      const utilityGrids = [
-        {
-          name: 'Downtown Substation A',
-          type: 'Electricity',
-          capacity: 5000.00,
-          current_load: 4200.50,
-          status: 'Normal',
-          location_lat: 28.630400,
-          location_lng: 77.217700
-        },
-        {
-          name: 'East District Water Reservoir',
-          type: 'Water',
-          capacity: 12000.00,
-          current_load: 8500.00,
-          status: 'Normal',
-          location_lat: 28.612900,
-          location_lng: 77.229500
-        },
-        {
-          name: 'North Gas Distributary 3',
-          type: 'Gas',
-          capacity: 3000.00,
-          current_load: 2950.00,
-          status: 'Overloaded',
-          location_lat: 28.650600,
-          location_lng: 77.230300
-        }
-      ];
-      await UtilityGrid.insertMany(utilityGrids);
-      console.log('✅ Utility grids seeded.');
     }
 
     // 6. Seed Node Logs if empty

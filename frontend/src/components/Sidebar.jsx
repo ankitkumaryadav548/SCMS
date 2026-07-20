@@ -16,7 +16,6 @@ const Sidebar = () => {
     { name: 'Departments',         path: '/departments',icon: Network, adminOnly: true },
     { name: 'Traffic Optimization',path: '/traffic',   icon: Car },
     { name: 'Emergency Alerts',    path: '/emergency', icon: AlertTriangle, adminOnly: true },
-    { name: 'Utility Grid',        path: '/utility',   icon: Activity },
   ];
 
   const visibleLinks = links.filter(link => !link.adminOnly || isAdmin);

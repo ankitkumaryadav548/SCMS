@@ -52,7 +52,6 @@ if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
 const authRoutes       = require('./routes/auth.routes');
 const trafficRoutes    = require('./routes/traffic.routes');
 const emergencyRoutes  = require('./routes/emergency.routes');
-const utilityRoutes    = require('./routes/utility.routes');
 const bookingRoutes    = require('./routes/booking.routes');
 const citizenRoutes    = require('./routes/citizen.routes');
 const departmentRoutes = require('./routes/department.routes');
@@ -62,7 +61,6 @@ const dashboardRoutes  = require('./routes/dashboard.routes');
 app.use('/api/v1/auth',        authRoutes);
 app.use('/api/v1/traffic',     trafficRoutes);
 app.use('/api/v1/emergency',   emergencyRoutes);
-app.use('/api/v1/utility',     utilityRoutes);
 app.use('/api/v1/bookings',    bookingRoutes);
 app.use('/api/v1/citizens',    citizenRoutes);
 app.use('/api/v1/departments', departmentRoutes);

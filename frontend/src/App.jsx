@@ -12,7 +12,6 @@ import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Traffic from './pages/Traffic';
 import Emergency from './pages/Emergency';
-import Utility from './pages/Utility';
 import Navigation from './pages/Navigation';
 import Booking from './pages/Booking';
 import Citizens from './pages/Citizens';
@@ -94,17 +93,6 @@ function App() {
                 <ProtectedRoute allowedRoles={['Admin', 'Operator']}>
                   <MainLayout>
                     <Emergency />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/utility"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <Utility />
                   </MainLayout>
                 </ProtectedRoute>
               }
