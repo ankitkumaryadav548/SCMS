@@ -742,17 +742,7 @@ const CitizensPage = () => {
         )}
       </div>
 
-      {/* ── Info footer ───────────────────────────────────── */}
-      <div className="bg-brand-500/5 border border-brand-500/10 rounded-xl p-5 flex items-start gap-4">
-        <Hash className="h-5 w-5 text-brand-500 shrink-0 mt-0.5" />
-        <div className="text-xs text-darkbg-textMuted leading-relaxed">
-          <strong className="text-white block font-semibold mb-1">Under the Hood: Doubly-Linked List</strong>
-          Citizen records are maintained in a module-level <strong className="text-white">doubly-linked list</strong> rebuilt from MongoDB on server start.
-          Each node holds a citizen document with <code className="text-brand-300 bg-brand-500/10 px-1 rounded">prev</code> and <code className="text-brand-300 bg-brand-500/10 px-1 rounded">next</code> pointers.
-          The Search bar triggers a linear O(n) <strong className="text-white">linked-list traversal</strong> (source: LinkedList) rather than a DB query.
-          Inserts are O(1) tail appends. Updates and deletions traverse in O(n) to locate the node.
-        </div>
-      </div>
+
 
       {/* ── Modals / Drawers ──────────────────────────────── */}
       {modal && (

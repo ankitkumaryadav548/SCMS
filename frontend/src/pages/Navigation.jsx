@@ -521,7 +521,7 @@ const NavigationPage = () => {
             Smart Transit Navigator
           </h1>
           <p className="text-darkbg-textMuted text-sm mt-1">
-            Calculate shortest geographic or fastest traffic-aware routes powered by Spring Boot Dijkstra.
+            Calculate shortest geographic or fastest traffic-aware routes.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -548,9 +548,6 @@ const NavigationPage = () => {
                 <Navigation className="h-4 w-4 text-brand-500" />
                 Route Planning Panel
               </h2>
-              <span className="text-xxs font-semibold uppercase px-2 py-0.5 rounded bg-brand-500/10 text-brand-400">
-                DSA Dijkstra
-              </span>
             </div>
 
             {/* Geocoder / Search bar */}
@@ -1222,23 +1219,7 @@ const NavigationPage = () => {
 
       </div>
 
-      {/* Info Warning Card */}
-      <div className="bg-brand-500/5 border border-brand-500/10 rounded-xl p-5 flex items-start gap-4">
-        <Info className="h-5 w-5 text-brand-500 shrink-0 mt-0.5" />
-        <div className="text-xs text-darkbg-textMuted leading-relaxed space-y-1">
-          <strong className="text-white block font-semibold">Under the Hood: Smart Routing Execution Details</strong>
-          <p>
-            When you request routing calculations:
-          </p>
-          <ul className="list-disc pl-5 space-y-1 mt-1 font-medium">
-            <li>The frontend builds a dynamic weighted edge schema of Manhattan intersections.</li>
-            <li>In <span className="text-white font-semibold">Fastest Mode</span>, weights represent Travel Time in minutes (Time = (Distance / Speed) * 60), dynamically scaled by your congestion slider.</li>
-            <li>This structured representation is posted via Axios to the Node.js API, which authenticates the call and relays the graph to the <span className="text-white font-semibold">Java Spring Boot Dijkstra API</span>.</li>
-            <li>The Java engine loads the custom edges, computes the single-source shortest path using a binary heap priority queue Dijkstra implementation, and responds within milliseconds.</li>
-            <li>The alternative path is resolved by adding a penalty weight (W * 2.5) to the primary path edges and querying the Java engine again to force a bypass routing path.</li>
-          </ul>
-        </div>
-      </div>
+
     </div>
   );
 };

@@ -239,12 +239,12 @@ const Dashboard = () => {
   const formatINR = val => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
 
   if (loading) {
-    return <LoadingScreen message="Orchestrating live database metrics..." />;
+    return <LoadingScreen message="Loading live database metrics..." />;
   }
 
   return (
     <div className="space-y-8 pb-10">
-      <SEO title="Admin Orchestrator Dashboard" description="Smart City management control center and live IoT sensor feed telemetry." />
+      <SEO title="Admin Dashboard" description="Smart City management control center and live IoT sensor feed telemetry." />
 
       {/* Header Panel */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-darkbg-card border border-darkbg-border rounded-2xl p-6 shadow-glass backdrop-blur-md relative overflow-hidden">
@@ -254,7 +254,7 @@ const Dashboard = () => {
             <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[10px] font-bold uppercase tracking-widest text-brand-400">System Telemetry Live</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Admin Orchestrator Dashboard</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Admin Dashboard</h1>
           <p className="text-darkbg-textMuted text-xs mt-1 max-w-xl">
             Municipal operations terminal for {user?.name || 'Authorized Personnel'} (Role: <span className="text-brand-400 font-semibold">{user?.role || 'Operator'}</span>).
           </p>

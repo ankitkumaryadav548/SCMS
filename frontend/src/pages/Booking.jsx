@@ -759,17 +759,7 @@ const BookingPage = () => {
         </div>
       )}
 
-      {/* Info footer */}
-      <div className="bg-brand-500/5 border border-brand-500/10 rounded-xl p-5 flex items-start gap-4">
-        <Hash className="h-5 w-5 text-brand-500 shrink-0 mt-0.5" />
-        <div className="text-xs text-darkbg-textMuted leading-relaxed">
-          <strong className="text-white block font-semibold mb-1">Under the Hood: Queue Data Structure</strong>
-          The waiting queue is implemented as a FIFO (First In, First Out) array-backed queue in the Node.js backend.
-          Every new booking is <span className="text-white font-semibold">enqueued</span> with an O(1) push.
-          Approvals and rejections <span className="text-white font-semibold">dequeue</span> via array shift (O(n)) and
-          automatically recalculate position numbers for remaining items.
-        </div>
-      </div>
+
     </div>
   );
 };
