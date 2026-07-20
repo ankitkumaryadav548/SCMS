@@ -498,9 +498,6 @@ const CitizensPage = () => {
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Users className="h-6 w-6 text-brand-500" /> Citizen Records
           </h1>
-          <p className="text-darkbg-textMuted text-sm mt-0.5">
-            Doubly-Linked List · CRUD · Audit History · Pagination
-          </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={() => { fetchCitizens(); fetchStats(); }}

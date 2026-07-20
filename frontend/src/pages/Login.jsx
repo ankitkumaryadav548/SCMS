@@ -123,9 +123,6 @@ const Login = () => {
               Citizen Portal
             </button>
           </div>
-          <span className="text-[10px] text-darkbg-textMuted text-center font-mono mt-1">
-            Password for all demo accounts: <code className="text-white">password123</code>
-          </span>
         </div>
       </div>
     </div>

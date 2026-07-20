@@ -831,9 +831,6 @@ const DepartmentsPage = () => {
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Building className="h-6 w-6 text-brand-500" /> Department Directory
           </h1>
-          <p className="text-darkbg-textMuted text-sm mt-0.5">
-            N-Ary Tree DSA · Expand & Collapse · Level-Order BFS · DFS Search
-          </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button
@@ -909,33 +906,8 @@ const DepartmentsPage = () => {
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-darkbg-border shrink-0">
-        <button
-          onClick={() => setActiveTab('tree')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all ${
-            activeTab === 'tree'
-              ? 'border-brand-500 text-brand-400'
-              : 'border-transparent text-darkbg-textMuted hover:text-white'
-          }`}
-        >
-          <Building className="h-4 w-4" /> Tree Structure
-        </button>
-        <button
-          onClick={loadBFS}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all ${
-            activeTab === 'bfs'
-              ? 'border-brand-500 text-brand-400'
-              : 'border-transparent text-darkbg-textMuted hover:text-white'
-          }`}
-        >
-          <Layers className="h-4 w-4" /> BFS Level view
-        </button>
-      </div>
-
-      {/* ── TREE DIRECTORY VIEW ───────────────────────────── */}
-      {activeTab === 'tree' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Tree Directory View */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Tree column */}
           <div className="lg:col-span-5 space-y-4">
@@ -990,21 +962,7 @@ const DepartmentsPage = () => {
                 </div>
               )}
 
-              {/* Expand All / Collapse All buttons */}
-              <div className="flex gap-2">
-                <button
-                  onClick={expandAll}
-                  className="flex-1 py-1.5 border border-darkbg-border rounded-lg text-xs font-semibold text-darkbg-textMuted hover:text-white hover:border-darkbg-textMuted transition-all"
-                >
-                  Expand All
-                </button>
-                <button
-                  onClick={collapseAll}
-                  className="flex-1 py-1.5 border border-darkbg-border rounded-lg text-xs font-semibold text-darkbg-textMuted hover:text-white hover:border-darkbg-textMuted transition-all"
-                >
-                  Collapse All
-                </button>
-              </div>
+
             </div>
 
             {/* Core Tree Panel */}
@@ -1057,85 +1015,6 @@ const DepartmentsPage = () => {
             />
           </div>
         </div>
-      )}
-
-      {/* ── BFS VIEW ──────────────────────────────────────── */}
-      {activeTab === 'bfs' && (
-        <div className="bg-darkbg-card border border-darkbg-border rounded-xl p-5 min-h-[400px] space-y-6">
-          <div>
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Layers className="h-4 w-4 text-cyan-400" /> Level Order BFS view
-            </h2>
-            <p className="text-xs text-darkbg-textMuted mt-1">
-              BFS explores all administrative nodes layer-by-layer: Level 0 (Main Departments) → Level 1 (Sub-Divisions) → Level 2 (Staff Members).
-            </p>
-          </div>
-
-          {bfsLoading ? (
-            <div className="py-12 text-center text-darkbg-textMuted text-sm">
-              <RefreshCw className="h-5 w-5 mx-auto mb-2 animate-spin text-brand-400" /> Traversing BFS layers…
-            </div>
-          ) : !bfsData || bfsData.length === 0 ? (
-            <div className="py-12 text-center text-darkbg-textMuted text-sm">
-              No data in tree to traverse.
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {bfsData.map((levelNodes, levelIdx) => {
-                const label = levelIdx === 0 ? 'Level 0 — Core Departments' :
-                              levelIdx === 1 ? 'Level 1 — Sub-Divisions' :
-                              'Level 2 — Employees / Staff';
-                return (
-                  <div key={levelIdx} className="space-y-3">
-                    <h3 className="text-xs font-bold text-brand-400 uppercase tracking-widest flex items-center gap-2 border-b border-darkbg-border pb-1">
-                      <Layers className="h-3.5 w-3.5" /> {label}
-                      <span className="ml-auto text-[10px] text-darkbg-textMuted bg-darkbg-pure px-2 py-0.5 rounded border border-darkbg-border">{levelNodes.length} nodes</span>
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {levelNodes.map(node => (
-                        <div key={node._id} className="bg-darkbg-pure border border-darkbg-border rounded-xl p-3 flex flex-col justify-between hover:border-brand-500/40 transition-colors">
-                          <div>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border ${typeBadgeColor(node.type)}`}>
-                                {node.type}
-                              </span>
-                              {node.code && <span className="font-mono text-[9px] text-darkbg-textMuted font-bold uppercase">{node.code}</span>}
-                            </div>
-                            <h4 className="text-xs font-bold text-white mt-1.5 truncate">{node.name}</h4>
-                            {node.type === 'Employee' ? (
-                              <p className="text-[10px] text-darkbg-textMuted mt-0.5 truncate">{node.designation} ({node.employeeId})</p>
-                            ) : (
-                              <p className="text-[10px] text-darkbg-textMuted mt-0.5 truncate">Head: {node.head || '—'}</p>
-                            )}
-                          </div>
-                          {node.type === 'Employee' && (
-                            <div className="mt-2 text-[10px] text-emerald-400 font-semibold">{node.salary ? formatINR(node.salary) : '—'}/mo</div>
-                          )}
-                          {node.type !== 'Employee' && node.budget && (
-                            <div className="mt-2 text-[10px] text-emerald-400 font-semibold">{formatINR(node.budget)} budget</div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Info footer */}
-      <div className="bg-brand-500/5 border border-brand-500/10 rounded-xl p-5 flex items-start gap-4">
-        <Layers className="h-5 w-5 text-brand-500 shrink-0 mt-0.5" />
-        <div className="text-xs text-darkbg-textMuted leading-relaxed">
-          <strong className="text-white block font-semibold mb-1">Under the Hood: N-ary Tree & DFS / BFS</strong>
-          The administrative hierarchy uses an <strong className="text-white">N-ary Tree</strong>.
-          Every node is built dynamically linking child references via parent identifiers.
-          The search bar executes a **Depth-First Search (DFS)** recursion tree traversal.
-          The BFS Level View runs a **Breadth-First Search (BFS)** queue traversal layer-by-layer.
-        </div>
-      </div>
 
       {/* Add / Edit Modal */}
       {nodeModal && (
